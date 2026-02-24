@@ -14,6 +14,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@agendajs/mongo-backend": "^3.2.0",
     "agenda": "^6.2.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
