@@ -1,0 +1,70 @@
+import { PlayerModel } from './players.model.js';
+import type { Player, PlayerFilters } from './players.types.js';
+
+export class PlayersService {
+  async getPlayers(filters: PlayerFilters = {}) {
+    const {
+      league,
+      position,
+      search,
+      page = 1,
+      limit = 50,
+    } = filters;
+
+    const query: Record<string, unknown> = {};
+
+    // Filter by league
+    if (league && league !== 'MLB') {
+      query.league = league;
+    }
+
+    // Filter by position
+    if (position) {
+      query.positions = position;
+    }
+
+    // Search by name
+    if (search) {
+      query.$text = { $search: search };
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [players, total] = await Promise.all([
+      PlayerModel.find(query)
+        .sort({ name: 1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      PlayerModel.countDocuments(query),
+    ]);
+
+    return {
+      players,
+      pagination: {
+        page,
+        limit,
+        total,
+      },
+    };
+  }
+
+  async getPlayerById(id: string): Promise<Player | null> {
+    return PlayerModel.findById(id).lean();
+  }
+
+  async createPlayer(playerData: Omit<Player, '_id' | 'createdAt' | 'updatedAt'>): Promise<Player> {
+    const player = new PlayerModel(playerData);
+    return player.save();
+  }
+
+  async seedPlayers(players: Omit<Player, '_id' | 'createdAt' | 'updatedAt'>[]): Promise<void> {
+    await PlayerModel.insertMany(players);
+  }
+
+  async clearPlayers(): Promise<void> {
+    await PlayerModel.deleteMany({});
+  }
+}
+
+export const playersService = new PlayersService();
