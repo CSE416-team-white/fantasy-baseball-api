@@ -14,6 +14,24 @@ export function loadExpress(app: Express): void {
 
   // Health check
   const health = Router();
+  /**
+   * @swagger
+   * /api/health:
+   *   get:
+   *     summary: Health check endpoint
+   *     tags: [Health]
+   *     responses:
+   *       200:
+   *         description: Service is healthy
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: ok
+   */
   health.get('/', (_req, res) => {
     res.json({ status: 'ok' });
   });
