@@ -3,6 +3,12 @@ import type { Player } from './players.types.js';
 
 const playerSchema = new Schema<Player>(
   {
+    externalId: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+    },
     name: {
       type: String,
       required: true,
@@ -24,6 +30,22 @@ const playerSchema = new Schema<Player>(
       required: true,
       enum: ['AL', 'NL'],
     },
+    depthChartStatus: {
+      type: String,
+      enum: ['starter', 'backup', 'reserve', 'minors'],
+    },
+    depthChartOrder: {
+      type: Number,
+      min: 1,
+    },
+    injuryStatus: {
+      type: String,
+      enum: ['active', 'day-to-day', 'il-10', 'il-15', 'il-60', 'out'],
+      default: 'active',
+    },
+    injuryNote: {
+      type: String,
+    },
   },
   {
     timestamps: true,
@@ -34,5 +56,7 @@ const playerSchema = new Schema<Player>(
 playerSchema.index({ name: 'text' });
 playerSchema.index({ league: 1 });
 playerSchema.index({ positions: 1 });
+playerSchema.index({ depthChartStatus: 1 });
+playerSchema.index({ injuryStatus: 1 });
 
 export const PlayerModel = mongoose.model<Player>('Player', playerSchema);

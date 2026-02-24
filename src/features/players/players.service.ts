@@ -58,12 +58,31 @@ export class PlayersService {
     return player.save();
   }
 
-  async seedPlayers(players: Omit<Player, '_id' | 'createdAt' | 'updatedAt'>[]): Promise<void> {
-    await PlayerModel.insertMany(players);
+  async upsertPlayer(playerData: Omit<Player, '_id' | 'createdAt' | 'updatedAt'>): Promise<Player> {
+    const updated = await PlayerModel.findOneAndUpdate(
+      { externalId: playerData.externalId },
+      playerData,
+      { upsert: true, new: true, runValidators: true }
+    ).lean();
+
+    return updated!;
   }
 
-  async clearPlayers(): Promise<void> {
-    await PlayerModel.deleteMany({});
+  async upsertPlayers(players: Omit<Player, '_id' | 'createdAt' | 'updatedAt'>[]): Promise<number> {
+    const operations = players.map((player) => ({
+      updateOne: {
+        filter: { externalId: player.externalId },
+        update: { $set: player },
+        upsert: true,
+      },
+    }));
+
+    const result = await PlayerModel.bulkWrite(operations);
+    return result.upsertedCount + result.modifiedCount;
+  }
+
+  async seedPlayers(players: Omit<Player, '_id' | 'createdAt' | 'updatedAt'>[]): Promise<void> {
+    await PlayerModel.insertMany(players);
   }
 }
 

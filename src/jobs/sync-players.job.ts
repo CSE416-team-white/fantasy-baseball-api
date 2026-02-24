@@ -13,14 +13,11 @@ export function definePlayerSyncJob() {
     // For now, this is a placeholder
     const externalPlayers = await fetchPlayersFromExternalAPI();
 
-    // Clear existing players and insert new ones
-    await playersService.clearPlayers();
+    // Upsert players (update existing, insert new)
+    // This preserves historical data and handles API failures gracefully
+    const updatedCount = await playersService.upsertPlayers(externalPlayers);
 
-    for (const player of externalPlayers) {
-      await playersService.createPlayer(player);
-    }
-
-    console.log(`Synced ${externalPlayers.length} players`);
+    console.log(`Synced ${externalPlayers.length} players (${updatedCount} updated/inserted)`);
   } catch (error) {
     console.error('Player sync failed:', error);
     throw error;
