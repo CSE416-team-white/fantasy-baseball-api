@@ -15,11 +15,32 @@ export const PlayerPositionSchema = z.enum([
 
 export const LeagueSchema = z.enum(['AL', 'NL']);
 
+export const DepthChartStatusSchema = z.enum([
+  'starter',
+  'backup',
+  'reserve',
+  'minors',
+]);
+
+export const InjuryStatusSchema = z.enum([
+  'active',
+  'day-to-day',
+  'il-10', // 10-day injured list
+  'il-15', // 15-day injured list
+  'il-60', // 60-day injured list
+  'out',
+]);
+
 export const PlayerSchema = z.object({
+  externalId: z.string().min(1), // MLB API player ID for upserting
   name: z.string().min(1).trim(),
   team: z.string().length(3).toUpperCase(),
   positions: z.array(PlayerPositionSchema).min(1),
   league: LeagueSchema,
+  depthChartStatus: DepthChartStatusSchema.optional(),
+  depthChartOrder: z.number().int().min(1).optional(), // 1 = starter, 2 = first backup, etc.
+  injuryStatus: InjuryStatusSchema.default('active'),
+  injuryNote: z.string().optional(),
 });
 
 export const PlayerFiltersSchema = z.object({
@@ -33,6 +54,8 @@ export const PlayerFiltersSchema = z.object({
 // Infer TypeScript types from Zod schemas
 export type PlayerPosition = z.infer<typeof PlayerPositionSchema>;
 export type League = z.infer<typeof LeagueSchema>;
+export type DepthChartStatus = z.infer<typeof DepthChartStatusSchema>;
+export type InjuryStatus = z.infer<typeof InjuryStatusSchema>;
 export type PlayerInput = z.infer<typeof PlayerSchema>;
 export type PlayerFilters = z.infer<typeof PlayerFiltersSchema>;
 
