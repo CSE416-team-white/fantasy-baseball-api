@@ -11,7 +11,7 @@ class Logger {
       timestamp,
       level,
       message,
-      ...(meta && { meta }),
+      ...(meta ? { meta } : {}),
     };
 
     if (this.isDevelopment) {

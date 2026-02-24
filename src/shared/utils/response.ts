@@ -31,7 +31,7 @@ export function sendSuccess<T>(
   const response: SuccessResponse<T> = {
     success: true,
     data,
-    ...(message && { message }),
+    ...(message ? { message } : {}),
   };
   res.status(statusCode).json(response);
 }
@@ -45,7 +45,7 @@ export function sendError(
   const response: ErrorResponse = {
     success: false,
     message,
-    ...(errors && { errors }),
+    ...(errors ? { errors } : {}),
   };
   res.status(statusCode).json(response);
 }
@@ -60,7 +60,7 @@ export function sendPaginated<T>(
   const response: PaginatedResponse<T> = {
     success: true,
     data,
-    ...(message && { message }),
+    ...(message ? { message } : {}),
     pagination: {
       ...pagination,
       totalPages,
