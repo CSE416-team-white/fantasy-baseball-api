@@ -1,8 +1,11 @@
-import { agenda } from '../loaders/agenda.js';
+import { getAgenda } from '../loaders/agenda.js';
 import { playersService } from '../features/players/players.service.js';
 
-// Define the job
-agenda.define('sync-players', async (job) => {
+export function definePlayerSyncJob() {
+  const agenda = getAgenda();
+
+  // Define the job
+  agenda.define('sync-players', async (job: any) => {
   console.log('Running player sync job...');
 
   try {
@@ -22,7 +25,8 @@ agenda.define('sync-players', async (job) => {
     console.error('Player sync failed:', error);
     throw error;
   }
-});
+  });
+}
 
 // Placeholder function - replace with actual API integration
 async function fetchPlayersFromExternalAPI() {
@@ -37,11 +41,13 @@ async function fetchPlayersFromExternalAPI() {
 
 // Schedule the job (runs daily at 3 AM)
 export async function schedulePlayerSync() {
+  const agenda = getAgenda();
   await agenda.every('0 3 * * *', 'sync-players');
   console.log('Player sync job scheduled (daily at 3 AM)');
 }
 
 // Manual trigger (useful for testing or admin endpoints)
 export async function triggerPlayerSyncNow() {
+  const agenda = getAgenda();
   await agenda.now('sync-players');
 }
