@@ -2,11 +2,17 @@ import express from 'express';
 import { env } from './config/env.js';
 import { connectDB } from './loaders/mongoose.js';
 import { loadExpress } from './loaders/express.js';
+import { startAgenda } from './loaders/agenda.js';
+import { definePlayerSyncJob, schedulePlayerSync } from './jobs/sync-players.job.js';
 
 async function start() {
   const app = express();
 
   await connectDB();
+  await startAgenda();
+  definePlayerSyncJob();
+  await schedulePlayerSync();
+
   loadExpress(app);
 
   app.listen(env.port, () => {
