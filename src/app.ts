@@ -1,6 +1,6 @@
 import express from 'express';
 import { env } from './config/env.js';
-import { connectDB } from './config/db.js';
+import { connectDB } from './loaders/mongoose.js';
 import { loadExpress } from './loaders/express.js';
 
 async function start() {
