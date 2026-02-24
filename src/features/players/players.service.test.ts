@@ -6,28 +6,36 @@ import type { PlayerInput } from './players.types.js';
 describe('PlayersService', () => {
   const mockPlayers: PlayerInput[] = [
     {
+      externalId: 'mlb-592450',
       name: 'Aaron Judge',
       team: 'NYY',
       positions: ['OF'],
       league: 'AL',
+      injuryStatus: 'active',
     },
     {
+      externalId: 'mlb-660271',
       name: 'Shohei Ohtani',
       team: 'LAA',
       positions: ['DH', 'SP'],
       league: 'AL',
+      injuryStatus: 'active',
     },
     {
+      externalId: 'mlb-605141',
       name: 'Mookie Betts',
       team: 'LAD',
       positions: ['OF'],
       league: 'NL',
+      injuryStatus: 'active',
     },
     {
+      externalId: 'mlb-518692',
       name: 'Freddie Freeman',
       team: 'LAD',
       positions: ['1B'],
       league: 'NL',
+      injuryStatus: 'active',
     },
   ];
 
@@ -135,9 +143,9 @@ describe('PlayersService', () => {
 
   describe('getPlayerById', () => {
     it('should return a player by id', async () => {
-      const created = await PlayerModel.create(mockPlayers[0]);
+      const players = await PlayerModel.find({ externalId: 'mlb-592450' }).limit(1);
       const player = await playersService.getPlayerById(
-        created._id.toString(),
+        players[0]._id.toString(),
       );
 
       expect(player.name).toBe('Aaron Judge');
@@ -158,10 +166,12 @@ describe('PlayersService', () => {
       await PlayerModel.deleteMany({});
 
       const newPlayer: PlayerInput = {
+        externalId: 'mlb-665742',
         name: 'Juan Soto',
         team: 'SD',
         positions: ['OF'],
         league: 'NL',
+        injuryStatus: 'active',
       };
 
       const created = await playersService.createPlayer(newPlayer);
@@ -173,10 +183,12 @@ describe('PlayersService', () => {
 
     it('should create player with multiple positions', async () => {
       const newPlayer: PlayerInput = {
+        externalId: 'mlb-660271-test',
         name: 'Shohei Ohtani',
         team: 'LAA',
         positions: ['DH', 'SP'],
         league: 'AL',
+        injuryStatus: 'active',
       };
 
       const created = await playersService.createPlayer(newPlayer);
@@ -187,12 +199,38 @@ describe('PlayersService', () => {
     });
   });
 
-  describe('clearPlayers', () => {
-    it('should delete all players', async () => {
-      await playersService.clearPlayers();
+  describe('upsertPlayer', () => {
+    it('should create a new player if externalId does not exist', async () => {
+      const newPlayer: PlayerInput = {
+        externalId: 'mlb-999999',
+        name: 'New Player',
+        team: 'BOS',
+        positions: ['SS'],
+        league: 'AL',
+        injuryStatus: 'active',
+      };
 
-      const count = await PlayerModel.countDocuments();
-      expect(count).toBe(0);
+      const created = await playersService.upsertPlayer(newPlayer);
+
+      expect(created.name).toBe('New Player');
+      expect(created.externalId).toBe('mlb-999999');
+    });
+
+    it('should update existing player if externalId matches', async () => {
+      const updatedPlayer: PlayerInput = {
+        externalId: 'mlb-592450',
+        name: 'Aaron Judge Updated',
+        team: 'NYY',
+        positions: ['OF', 'DH'],
+        league: 'AL',
+        injuryStatus: 'day-to-day',
+      };
+
+      const updated = await playersService.upsertPlayer(updatedPlayer);
+
+      expect(updated.name).toBe('Aaron Judge Updated');
+      expect(updated.positions).toContain('DH');
+      expect(updated.injuryStatus).toBe('day-to-day');
     });
   });
 });
