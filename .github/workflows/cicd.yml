@@ -34,22 +34,18 @@ jobs:
           cache-dependency-path: './package-lock.json'
 
       - name: Install dependencies
-        working-directory: fantasy-baseball-api
         run: npm ci
 
       - name: Run linter
-        working-directory: fantasy-baseball-api
         run: npm run lint
 
       - name: Run tests
-        working-directory: fantasy-baseball-api
         run: npm test
         env:
           MONGODB_URI: mongodb://localhost:27017/fantasy-baseball-test
           NODE_ENV: test
 
       - name: Build project
-        working-directory: fantasy-baseball-api
         run: npm run build
 
   deploy:
