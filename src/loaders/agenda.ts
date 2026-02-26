@@ -35,9 +35,12 @@ export async function startAgenda(): Promise<void> {
   if (!agenda) {
     await initAgenda();
   }
-  await agenda.start();
+  await agenda!.start();
 }
 
 export async function stopAgenda(): Promise<void> {
+  if (!agenda) {
+    throw new Error('Agenda not initialized. Call initAgenda() first.');
+  }
   await agenda.stop();
 }
