@@ -17,7 +17,7 @@ interface MLBTeam {
 interface MLBPlayer {
   id: number;
   fullName: string;
-  primaryPosition: {
+  primaryPosition?: {
     code: string;
     abbreviation: string;
   };
@@ -32,7 +32,7 @@ interface MLBPlayer {
     code: string;
   };
   mlbDebutDate?: string;
-  active: boolean;
+  active?: boolean;
 }
 
 interface MLBRosterEntry {
@@ -123,7 +123,8 @@ async function fetchAllMLBPlayers(): Promise<PlayerInput[]> {
       for (const rosterEntry of roster.roster) {
         const player = rosterEntry.person;
 
-        if (!player.active) continue;
+        // Players on 40-man roster are considered active
+        // The 'active' field isn't provided in roster endpoint, only in player detail endpoint
 
         const league = team.league.id === 103 ? 'AL' : 'NL';
         const positions = mapPositionToOurs(rosterEntry.position.abbreviation);
@@ -144,7 +145,7 @@ async function fetchAllMLBPlayers(): Promise<PlayerInput[]> {
           batSide: player.batSide?.code as 'R' | 'L' | 'S' | undefined,
           pitchHand: player.pitchHand?.code as 'R' | 'L' | undefined,
           mlbDebutDate: player.mlbDebutDate,
-          active: player.active,
+          active: true, // Players on 40-man roster are active
         };
 
         allPlayers.push(playerInput);
