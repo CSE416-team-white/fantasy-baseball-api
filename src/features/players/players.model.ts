@@ -30,6 +30,9 @@ const playerSchema = new Schema<Player>(
       required: true,
       enum: ['AL', 'NL'],
     },
+    jerseyNumber: {
+      type: String,
+    },
     depthChartStatus: {
       type: String,
       enum: ['starter', 'backup', 'reserve', 'minors'],
@@ -45,6 +48,33 @@ const playerSchema = new Schema<Player>(
     },
     injuryNote: {
       type: String,
+    },
+    birthDate: {
+      type: String,
+    },
+    age: {
+      type: Number,
+    },
+    height: {
+      type: String,
+    },
+    weight: {
+      type: Number,
+    },
+    batSide: {
+      type: String,
+      enum: ['R', 'L', 'S'],
+    },
+    pitchHand: {
+      type: String,
+      enum: ['R', 'L'],
+    },
+    mlbDebutDate: {
+      type: String,
+    },
+    active: {
+      type: Boolean,
+      default: true,
     },
   },
   {

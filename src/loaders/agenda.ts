@@ -1,12 +1,13 @@
 import { env } from '../config/env.js';
+import type { Agenda } from 'agenda';
 
-let agenda: any;
+let agenda: Agenda | null = null;
 
 export async function initAgenda() {
-  const { Agenda } = await import('agenda');
+  const { Agenda: AgendaConstructor } = await import('agenda');
   const { MongoBackend } = await import('@agendajs/mongo-backend');
 
-  agenda = new (Agenda as any)({
+  agenda = new AgendaConstructor({
     backend: new MongoBackend({ address: env.mongodbUri, collection: 'jobs' }),
     processEvery: '1 minute',
     maxConcurrency: 20,

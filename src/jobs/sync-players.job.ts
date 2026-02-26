@@ -1,39 +1,212 @@
 import { getAgenda } from '../loaders/agenda.js';
 import { playersService } from '../features/players/players.service.js';
+import type { PlayerInput } from '../features/players/players.types.js';
+
+const MLB_API_BASE = 'https://statsapi.mlb.com/api/v1';
+
+interface MLBTeam {
+  id: number;
+  name: string;
+  abbreviation: string;
+  league: {
+    id: number;
+    name: string;
+  };
+}
+
+interface MLBPlayer {
+  id: number;
+  fullName: string;
+  primaryPosition?: {
+    code: string;
+    abbreviation: string;
+  };
+  birthDate?: string;
+  currentAge?: number;
+  height?: string;
+  weight?: number;
+  batSide?: {
+    code: string;
+  };
+  pitchHand?: {
+    code: string;
+  };
+  mlbDebutDate?: string;
+  active?: boolean;
+}
+
+interface MLBPlayerDetailResponse {
+  people: MLBPlayer[];
+}
+
+interface MLBRosterEntry {
+  person: MLBPlayer;
+  jerseyNumber?: string;
+  position: {
+    abbreviation: string;
+  };
+  status: {
+    code: string;
+    description: string;
+  };
+}
+
+interface MLBRosterResponse {
+  roster: MLBRosterEntry[];
+}
+
+async function fetchJSON<T>(url: string): Promise<T> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`MLB API error: ${response.status} ${response.statusText}`);
+  }
+  return response.json() as Promise<T>;
+}
+
+async function getAllTeams(): Promise<MLBTeam[]> {
+  const currentYear = new Date().getFullYear();
+  const response = await fetchJSON<{ teams: MLBTeam[] }>(
+    `${MLB_API_BASE}/teams?sportId=1&season=${currentYear}`,
+  );
+  return response.teams.filter(
+    (team) => team.league.id === 103 || team.league.id === 104,
+  );
+}
+
+async function getTeamRoster(teamId: number): Promise<MLBRosterResponse> {
+  return fetchJSON<MLBRosterResponse>(
+    `${MLB_API_BASE}/teams/${teamId}/roster/40Man`,
+  );
+}
+
+async function getPlayerDetails(playerId: number): Promise<MLBPlayer | null> {
+  try {
+    const response = await fetchJSON<MLBPlayerDetailResponse>(
+      `${MLB_API_BASE}/people/${playerId}`,
+    );
+    return response.people[0] || null;
+  } catch (error) {
+    console.error(`Failed to fetch details for player ${playerId}:`, error);
+    return null;
+  }
+}
+
+function mapPositionToOurs(mlbPosition: string): PlayerInput['positions'] {
+  const positionMap: Record<string, PlayerInput['positions']> = {
+    C: ['C'],
+    '1B': ['1B'],
+    '2B': ['2B'],
+    '3B': ['3B'],
+    SS: ['SS'],
+    LF: ['OF'],
+    CF: ['OF'],
+    RF: ['OF'],
+    OF: ['OF'],
+    DH: ['DH'],
+    P: ['SP'],
+    SP: ['SP'],
+    RP: ['RP'],
+  };
+
+  return positionMap[mlbPosition] || ['DH'];
+}
+
+function mapInjuryStatus(statusCode: string): PlayerInput['injuryStatus'] {
+  const statusMap: Record<string, PlayerInput['injuryStatus']> = {
+    A: 'active',
+    D10: 'il-10',
+    D15: 'il-15',
+    D60: 'il-60',
+    DTD: 'day-to-day',
+    OUT: 'out',
+  };
+
+  return statusMap[statusCode] || 'active';
+}
+
+async function fetchAllMLBPlayers(): Promise<PlayerInput[]> {
+  console.log('Fetching all MLB teams...');
+  const teams = await getAllTeams();
+  console.log(`Found ${teams.length} teams`);
+
+  const allPlayers: PlayerInput[] = [];
+
+  for (const team of teams) {
+    try {
+      console.log(`Fetching roster for ${team.name}...`);
+      const roster = await getTeamRoster(team.id);
+
+      if (!roster.roster || roster.roster.length === 0) {
+        console.log(`  ⚠️ Empty roster for ${team.name}`);
+        continue;
+      }
+
+      for (const rosterEntry of roster.roster) {
+        const player = rosterEntry.person;
+
+        // Fetch detailed player info (includes birthDate, height, weight, etc.)
+        const playerDetails = await getPlayerDetails(player.id);
+
+        const league = team.league.id === 103 ? 'AL' : 'NL';
+        const positions = mapPositionToOurs(rosterEntry.position.abbreviation);
+        const injuryStatus = mapInjuryStatus(rosterEntry.status.code);
+
+        const playerInput: PlayerInput = {
+          externalId: `mlb-${player.id}`,
+          name: player.fullName,
+          team: team.abbreviation,
+          positions,
+          league,
+          jerseyNumber: rosterEntry.jerseyNumber,
+          injuryStatus,
+          birthDate: playerDetails?.birthDate,
+          age: playerDetails?.currentAge,
+          height: playerDetails?.height,
+          weight: playerDetails?.weight,
+          batSide: playerDetails?.batSide?.code as 'R' | 'L' | 'S' | undefined,
+          pitchHand: playerDetails?.pitchHand?.code as 'R' | 'L' | undefined,
+          mlbDebutDate: playerDetails?.mlbDebutDate,
+          active: playerDetails?.active ?? true,
+        };
+
+        allPlayers.push(playerInput);
+
+        // Rate limiting for individual player requests
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+    } catch (error) {
+      console.error(`Failed to fetch roster for ${team.name}:`, error);
+      // Continue with other teams even if one fails
+    }
+  }
+
+  console.log(`Successfully fetched ${allPlayers.length} players`);
+  return allPlayers;
+}
 
 export function definePlayerSyncJob() {
   const agenda = getAgenda();
 
   // Define the job
-  agenda.define('sync-players', async (job: any) => {
-  console.log('Running player sync job...');
+  agenda.define('sync-players', async () => {
+    console.log('Running player sync job...');
 
-  try {
-    // TODO: Fetch players from external API (e.g., ESPN, MLB Stats API)
-    // For now, this is a placeholder
-    const externalPlayers = await fetchPlayersFromExternalAPI();
+    try {
+      // Fetch all active MLB players from MLB Stats API
+      const externalPlayers = await fetchAllMLBPlayers();
 
-    // Upsert players (update existing, insert new)
-    // This preserves historical data and handles API failures gracefully
-    const updatedCount = await playersService.upsertPlayers(externalPlayers);
+      // Upsert players (update existing, insert new)
+      // This preserves historical data and handles API failures gracefully
+      const updatedCount = await playersService.upsertPlayers(externalPlayers);
 
-    console.log(`Synced ${externalPlayers.length} players (${updatedCount} updated/inserted)`);
-  } catch (error) {
-    console.error('Player sync failed:', error);
-    throw error;
-  }
+      console.log(
+        `Synced ${externalPlayers.length} players (${updatedCount} updated/inserted)`,
+      );
+    } catch (error) {
+      console.error('Player sync failed:', error);
+      throw error;
+    }
   });
-}
-
-// Placeholder function - replace with actual API integration
-async function fetchPlayersFromExternalAPI() {
-  // TODO: Implement actual API call
-  // Example APIs:
-  // - MLB Stats API: https://statsapi.mlb.com/
-  // - ESPN Fantasy API
-  // - Yahoo Fantasy API
-
-  return [];
 }
 
 // Schedule the job (runs daily at 3 AM)

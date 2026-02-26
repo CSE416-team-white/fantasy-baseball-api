@@ -5,6 +5,7 @@ import { sendSuccess, sendPaginated } from '@/shared/utils/response.js';
 import { asyncHandler } from '@/shared/middlewares/async-handler.js';
 import { ApiError } from '@/shared/utils/api-error.js';
 import { PlayerFiltersSchema } from './players.types.js';
+import { triggerPlayerSyncNow } from '@/jobs/sync-players.job.js';
 
 const router = Router();
 
@@ -42,6 +43,21 @@ router.get(
     const filters = PlayerFiltersSchema.parse(req.query);
     const { players, pagination } = await playersService.getPlayers(filters);
     sendPaginated(res, players, pagination);
+  }),
+);
+
+
+/**
+ * @swagger
+ * /api/players/sync:
+ *   post:
+ *     summary: Manually trigger player sync from MLB API
+ */
+router.post(
+  '/sync',
+  asyncHandler(async (_req: Request, res: Response) => {
+    await triggerPlayerSyncNow();
+    sendSuccess(res, { message: 'Player sync triggered successfully' });
   }),
 );
 
