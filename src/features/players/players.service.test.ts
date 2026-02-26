@@ -87,9 +87,9 @@ describe('PlayersService', () => {
       const result = await playersService.getPlayers({ position: 'OF' });
 
       expect(result.players).toHaveLength(2);
-      expect(
-        result.players.every((p) => p.positions.includes('OF')),
-      ).toBe(true);
+      expect(result.players.every((p) => p.positions.includes('OF'))).toBe(
+        true,
+      );
     });
 
     it('should filter players by position (1B)', async () => {
@@ -143,10 +143,16 @@ describe('PlayersService', () => {
 
   describe('getPlayerById', () => {
     it('should return a player by id', async () => {
-      const players = await PlayerModel.find({ externalId: 'mlb-592450' }).limit(1);
+      const players = await PlayerModel.find({
+        externalId: 'mlb-592450',
+      }).limit(1);
       const player = await playersService.getPlayerById(
         players[0]._id.toString(),
       );
+
+      if (!player) {
+        throw new Error('Player not found');
+      }
 
       expect(player.name).toBe('Aaron Judge');
       expect(player.team).toBe('NYY');
