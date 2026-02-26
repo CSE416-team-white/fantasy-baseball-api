@@ -6,6 +6,7 @@ export class PlayersService {
     const {
       league,
       position,
+      playerType,
       search,
       page = 1,
       limit = 50,
@@ -23,6 +24,11 @@ export class PlayersService {
       query.positions = position;
     }
 
+    // Filter by player type
+    if (playerType) {
+      query.playerType = playerType;
+    }
+
     // Search by name
     if (search) {
       query.$text = { $search: search };
@@ -31,11 +37,7 @@ export class PlayersService {
     const skip = (page - 1) * limit;
 
     const [players, total] = await Promise.all([
-      PlayerModel.find(query)
-        .sort({ name: 1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
+      PlayerModel.find(query).sort({ name: 1 }).skip(skip).limit(limit).lean(),
       PlayerModel.countDocuments(query),
     ]);
 
@@ -53,22 +55,28 @@ export class PlayersService {
     return PlayerModel.findById(id).lean();
   }
 
-  async createPlayer(playerData: Omit<Player, '_id' | 'createdAt' | 'updatedAt'>): Promise<Player> {
+  async createPlayer(
+    playerData: Omit<Player, '_id' | 'createdAt' | 'updatedAt'>,
+  ): Promise<Player> {
     const player = new PlayerModel(playerData);
     return player.save();
   }
 
-  async upsertPlayer(playerData: Omit<Player, '_id' | 'createdAt' | 'updatedAt'>): Promise<Player> {
+  async upsertPlayer(
+    playerData: Omit<Player, '_id' | 'createdAt' | 'updatedAt'>,
+  ): Promise<Player> {
     const updated = await PlayerModel.findOneAndUpdate(
       { externalId: playerData.externalId },
       playerData,
-      { upsert: true, new: true, runValidators: true }
+      { upsert: true, new: true, runValidators: true },
     ).lean();
 
     return updated!;
   }
 
-  async upsertPlayers(players: Omit<Player, '_id' | 'createdAt' | 'updatedAt'>[]): Promise<number> {
+  async upsertPlayers(
+    players: Omit<Player, '_id' | 'createdAt' | 'updatedAt'>[],
+  ): Promise<number> {
     const operations = players.map((player) => ({
       updateOne: {
         filter: { externalId: player.externalId },
@@ -81,7 +89,9 @@ export class PlayersService {
     return result.upsertedCount + result.modifiedCount;
   }
 
-  async seedPlayers(players: Omit<Player, '_id' | 'createdAt' | 'updatedAt'>[]): Promise<void> {
+  async seedPlayers(
+    players: Omit<Player, '_id' | 'createdAt' | 'updatedAt'>[],
+  ): Promise<void> {
     await PlayerModel.insertMany(players);
   }
 }

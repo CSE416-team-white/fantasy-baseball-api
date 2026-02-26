@@ -11,6 +11,7 @@ describe('PlayersService', () => {
       team: 'NYY',
       positions: ['OF'],
       league: 'AL',
+      playerType: 'hitter',
       injuryStatus: 'active',
     },
     {
@@ -19,6 +20,7 @@ describe('PlayersService', () => {
       team: 'LAA',
       positions: ['DH', 'SP'],
       league: 'AL',
+      playerType: 'hitter', // Can have both positions - default to primary type
       injuryStatus: 'active',
     },
     {
@@ -27,6 +29,7 @@ describe('PlayersService', () => {
       team: 'LAD',
       positions: ['OF'],
       league: 'NL',
+      playerType: 'hitter',
       injuryStatus: 'active',
     },
     {
@@ -35,6 +38,7 @@ describe('PlayersService', () => {
       team: 'LAD',
       positions: ['1B'],
       league: 'NL',
+      playerType: 'hitter',
       injuryStatus: 'active',
     },
   ];
@@ -177,6 +181,7 @@ describe('PlayersService', () => {
         team: 'SD',
         positions: ['OF'],
         league: 'NL',
+        playerType: 'hitter',
         injuryStatus: 'active',
       };
 
@@ -194,6 +199,7 @@ describe('PlayersService', () => {
         team: 'LAA',
         positions: ['DH', 'SP'],
         league: 'AL',
+        playerType: 'pitcher',
         injuryStatus: 'active',
       };
 
@@ -213,6 +219,7 @@ describe('PlayersService', () => {
         team: 'BOS',
         positions: ['SS'],
         league: 'AL',
+        playerType: 'hitter',
         injuryStatus: 'active',
       };
 
@@ -229,6 +236,7 @@ describe('PlayersService', () => {
         team: 'NYY',
         positions: ['OF', 'DH'],
         league: 'AL',
+        playerType: 'hitter',
         injuryStatus: 'day-to-day',
       };
 
