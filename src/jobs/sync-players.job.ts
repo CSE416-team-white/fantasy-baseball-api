@@ -111,6 +111,16 @@ function mapPositionToOurs(mlbPosition: string): PlayerInput['positions'] {
   return positionMap[mlbPosition] || ['DH'];
 }
 
+function determinePlayerType(
+  positions: PlayerInput['positions'],
+): 'hitter' | 'pitcher' {
+  // If player has pitcher positions (SP or RP), they're a pitcher
+  // Everyone else (including two-way players defaulting to hitter) is a hitter
+  return positions.includes('SP') || positions.includes('RP')
+    ? 'pitcher'
+    : 'hitter';
+}
+
 function mapInjuryStatus(statusCode: string): PlayerInput['injuryStatus'] {
   const statusMap: Record<string, PlayerInput['injuryStatus']> = {
     A: 'active',
@@ -147,11 +157,12 @@ async function fetchAllMLBPlayers(): Promise<PlayerInput[]> {
         // Fetch detailed player info (includes birthDate, height, weight, etc.)
         const playerDetails = await getPlayerDetails(player.id);
 
-        const league = team.league.id === 103 ? 'AL' : 'NL';
+        const league = (team.league.id === 103 ? 'AL' : 'NL') as 'AL' | 'NL';
         const positions = mapPositionToOurs(rosterEntry.position.abbreviation);
         const injuryStatus = mapInjuryStatus(rosterEntry.status.code);
+        const playerType = determinePlayerType(positions);
 
-        const playerInput: PlayerInput = {
+        const basePlayer = {
           externalId: `mlb-${player.id}`,
           name: player.fullName,
           team: team.abbreviation,
@@ -163,11 +174,29 @@ async function fetchAllMLBPlayers(): Promise<PlayerInput[]> {
           age: playerDetails?.currentAge,
           height: playerDetails?.height,
           weight: playerDetails?.weight,
-          batSide: playerDetails?.batSide?.code as 'R' | 'L' | 'S' | undefined,
-          pitchHand: playerDetails?.pitchHand?.code as 'R' | 'L' | undefined,
           mlbDebutDate: playerDetails?.mlbDebutDate,
           active: playerDetails?.active ?? true,
         };
+
+        const playerInput: PlayerInput =
+          playerType === 'pitcher'
+            ? {
+                ...basePlayer,
+                playerType: 'pitcher' as const,
+                pitchHand: playerDetails?.pitchHand?.code as
+                  | 'R'
+                  | 'L'
+                  | undefined,
+              }
+            : {
+                ...basePlayer,
+                playerType: 'hitter' as const,
+                batSide: playerDetails?.batSide?.code as
+                  | 'R'
+                  | 'L'
+                  | 'S'
+                  | undefined,
+              };
 
         allPlayers.push(playerInput);
 

@@ -12,6 +12,9 @@ describe('PlayersService', () => {
       positions: ['OF'],
       league: 'AL',
       injuryStatus: 'active',
+      playerType: 'hitter',
+      batSide: 'R',
+      active: true,
     },
     {
       externalId: 'mlb-660271',
@@ -20,6 +23,9 @@ describe('PlayersService', () => {
       positions: ['DH', 'SP'],
       league: 'AL',
       injuryStatus: 'active',
+      playerType: 'pitcher',
+      pitchHand: 'R',
+      active: true,
     },
     {
       externalId: 'mlb-605141',
@@ -28,6 +34,9 @@ describe('PlayersService', () => {
       positions: ['OF'],
       league: 'NL',
       injuryStatus: 'active',
+      playerType: 'hitter',
+      batSide: 'R',
+      active: true,
     },
     {
       externalId: 'mlb-518692',
@@ -36,6 +45,9 @@ describe('PlayersService', () => {
       positions: ['1B'],
       league: 'NL',
       injuryStatus: 'active',
+      playerType: 'hitter',
+      batSide: 'L',
+      active: true,
     },
   ];
 
@@ -87,9 +99,9 @@ describe('PlayersService', () => {
       const result = await playersService.getPlayers({ position: 'OF' });
 
       expect(result.players).toHaveLength(2);
-      expect(
-        result.players.every((p) => p.positions.includes('OF')),
-      ).toBe(true);
+      expect(result.players.every((p) => p.positions.includes('OF'))).toBe(
+        true,
+      );
     });
 
     it('should filter players by position (1B)', async () => {
@@ -143,7 +155,9 @@ describe('PlayersService', () => {
 
   describe('getPlayerById', () => {
     it('should return a player by id', async () => {
-      const players = await PlayerModel.find({ externalId: 'mlb-592450' }).limit(1);
+      const players = await PlayerModel.find({
+        externalId: 'mlb-592450',
+      }).limit(1);
       const player = await playersService.getPlayerById(
         players[0]._id.toString(),
       );
@@ -172,6 +186,9 @@ describe('PlayersService', () => {
         positions: ['OF'],
         league: 'NL',
         injuryStatus: 'active',
+        playerType: 'hitter',
+        batSide: 'L',
+        active: true,
       };
 
       const created = await playersService.createPlayer(newPlayer);
@@ -189,6 +206,9 @@ describe('PlayersService', () => {
         positions: ['DH', 'SP'],
         league: 'AL',
         injuryStatus: 'active',
+        playerType: 'pitcher',
+        pitchHand: 'R',
+        active: true,
       };
 
       const created = await playersService.createPlayer(newPlayer);
@@ -208,6 +228,9 @@ describe('PlayersService', () => {
         positions: ['SS'],
         league: 'AL',
         injuryStatus: 'active',
+        playerType: 'hitter',
+        batSide: 'R',
+        active: true,
       };
 
       const created = await playersService.upsertPlayer(newPlayer);
@@ -224,6 +247,9 @@ describe('PlayersService', () => {
         positions: ['OF', 'DH'],
         league: 'AL',
         injuryStatus: 'day-to-day',
+        playerType: 'hitter',
+        batSide: 'R',
+        active: true,
       };
 
       const updated = await playersService.upsertPlayer(updatedPlayer);

@@ -46,7 +46,6 @@ router.get(
   }),
 );
 
-
 /**
  * @swagger
  * /api/players/sync:
