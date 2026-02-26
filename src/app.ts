@@ -7,11 +7,13 @@ import {
   definePlayerSyncJob,
   schedulePlayerSync,
 } from './jobs/sync-players.job.js';
+import { seedDefaultLeagues } from './features/leagues/utils/leagues.seed.js';
 
 async function start() {
   const app = express();
 
   await connectDB();
+  await seedDefaultLeagues();
   await startAgenda();
   definePlayerSyncJob();
   await schedulePlayerSync();
