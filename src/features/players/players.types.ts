@@ -37,10 +37,21 @@ export const PlayerSchema = z.object({
   team: z.string().length(3).toUpperCase(),
   positions: z.array(PlayerPositionSchema).min(1),
   league: LeagueSchema,
+  jerseyNumber: z.string().optional(),
   depthChartStatus: DepthChartStatusSchema.optional(),
   depthChartOrder: z.number().int().min(1).optional(), // 1 = starter, 2 = first backup, etc.
   injuryStatus: InjuryStatusSchema.default('active'),
   injuryNote: z.string().optional(),
+
+  // Player details from MLB API
+  birthDate: z.string().optional(),
+  age: z.number().int().optional(),
+  height: z.string().optional(),
+  weight: z.number().int().optional(),
+  batSide: z.enum(['R', 'L', 'S']).optional(), // Right, Left, Switch
+  pitchHand: z.enum(['R', 'L']).optional(),
+  mlbDebutDate: z.string().optional(),
+  active: z.boolean().default(true),
 });
 
 export const PlayerFiltersSchema = z.object({
