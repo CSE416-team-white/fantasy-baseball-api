@@ -4,6 +4,7 @@ import swaggerUi from 'swagger-ui-express';
 import { errorHandler } from '../shared/middlewares/error-handler.js';
 import { swaggerSpec } from '../config/swagger.js';
 import playersRoutes from '../features/players/players.routes.js';
+import leaguesRoutes from '../features/leagues/leagues.routes.js';
 
 export function loadExpress(app: Express): void {
   app.use(cors());
@@ -40,6 +41,7 @@ export function loadExpress(app: Express): void {
 
   // Feature routes
   app.use('/api/players', playersRoutes);
+  app.use('/api/leagues', leaguesRoutes);
 
   app.use(errorHandler);
 }
