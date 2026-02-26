@@ -31,7 +31,8 @@ export const InjuryStatusSchema = z.enum([
   'out',
 ]);
 
-export const PlayerSchema = z.object({
+// Base schema shared by all players
+const BasePlayerSchema = z.object({
   externalId: z.string().min(1), // MLB API player ID for upserting
   name: z.string().min(1).trim(),
   team: z.string().length(3).toUpperCase(),
@@ -39,7 +40,7 @@ export const PlayerSchema = z.object({
   league: LeagueSchema,
   jerseyNumber: z.string().optional(),
   depthChartStatus: DepthChartStatusSchema.optional(),
-  depthChartOrder: z.number().int().min(1).optional(), // 1 = starter, 2 = first backup, etc.
+  depthChartOrder: z.number().int().min(1).optional(),
   injuryStatus: InjuryStatusSchema.default('active'),
   injuryNote: z.string().optional(),
 
@@ -48,11 +49,27 @@ export const PlayerSchema = z.object({
   age: z.number().int().optional(),
   height: z.string().optional(),
   weight: z.number().int().optional(),
-  batSide: z.enum(['R', 'L', 'S']).optional(), // Right, Left, Switch
-  pitchHand: z.enum(['R', 'L']).optional(),
   mlbDebutDate: z.string().optional(),
   active: z.boolean().default(true),
 });
+
+// Hitter-specific schema
+const HitterPlayerSchema = BasePlayerSchema.extend({
+  playerType: z.literal('hitter'),
+  batSide: z.enum(['R', 'L', 'S']).optional(), // Right, Left, Switch
+});
+
+// Pitcher-specific schema
+const PitcherPlayerSchema = BasePlayerSchema.extend({
+  playerType: z.literal('pitcher'),
+  pitchHand: z.enum(['R', 'L']).optional(),
+});
+
+// Discriminated union
+export const PlayerSchema = z.discriminatedUnion('playerType', [
+  HitterPlayerSchema,
+  PitcherPlayerSchema,
+]);
 
 export const PlayerFiltersSchema = z.object({
   league: z.enum(['AL', 'NL', 'MLB']).optional(),
@@ -71,8 +88,8 @@ export type PlayerInput = z.infer<typeof PlayerSchema>;
 export type PlayerFilters = z.infer<typeof PlayerFiltersSchema>;
 
 // Database document type (includes Mongoose fields)
-export interface Player extends PlayerInput {
+export type Player = PlayerInput & {
   _id: string;
   createdAt: Date;
   updatedAt: Date;
-}
+};

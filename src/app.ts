@@ -3,7 +3,10 @@ import { env } from './config/env.js';
 import { connectDB } from './loaders/mongoose.js';
 import { loadExpress } from './loaders/express.js';
 import { startAgenda } from './loaders/agenda.js';
-import { definePlayerSyncJob, schedulePlayerSync } from './jobs/sync-players.job.js';
+import {
+  definePlayerSyncJob,
+  schedulePlayerSync,
+} from './jobs/sync-players.job.js';
 
 async function start() {
   const app = express();

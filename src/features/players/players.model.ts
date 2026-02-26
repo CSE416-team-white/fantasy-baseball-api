@@ -30,6 +30,11 @@ const playerSchema = new Schema<Player>(
       required: true,
       enum: ['AL', 'NL'],
     },
+    playerType: {
+      type: String,
+      required: true,
+      enum: ['hitter', 'pitcher'],
+    },
     jerseyNumber: {
       type: String,
     },
@@ -61,20 +66,22 @@ const playerSchema = new Schema<Player>(
     weight: {
       type: Number,
     },
-    batSide: {
-      type: String,
-      enum: ['R', 'L', 'S'],
-    },
-    pitchHand: {
-      type: String,
-      enum: ['R', 'L'],
-    },
     mlbDebutDate: {
       type: String,
     },
     active: {
       type: Boolean,
       default: true,
+    },
+    // Hitter-specific fields
+    batSide: {
+      type: String,
+      enum: ['R', 'L', 'S'],
+    },
+    // Pitcher-specific fields
+    pitchHand: {
+      type: String,
+      enum: ['R', 'L'],
     },
   },
   {
