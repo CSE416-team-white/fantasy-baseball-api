@@ -60,14 +60,19 @@ async function fetchJSON<T>(url: string): Promise<T> {
 }
 
 async function getAllTeams(): Promise<MLBTeam[]> {
+  const currentYear = new Date().getFullYear();
   const response = await fetchJSON<{ teams: MLBTeam[] }>(
-    `${MLB_API_BASE}/teams?sportId=1&season=2025`,
+    `${MLB_API_BASE}/teams?sportId=1&season=${currentYear}`,
   );
-  return response.teams.filter((team) => team.league.id === 103 || team.league.id === 104);
+  return response.teams.filter(
+    (team) => team.league.id === 103 || team.league.id === 104,
+  );
 }
 
 async function getTeamRoster(teamId: number): Promise<MLBRosterResponse> {
-  return fetchJSON<MLBRosterResponse>(`${MLB_API_BASE}/teams/${teamId}/roster/40Man`);
+  return fetchJSON<MLBRosterResponse>(
+    `${MLB_API_BASE}/teams/${teamId}/roster/40Man`,
+  );
 }
 
 function mapPositionToOurs(mlbPosition: string): PlayerInput['positions'] {
@@ -178,7 +183,9 @@ export function definePlayerSyncJob() {
       // This preserves historical data and handles API failures gracefully
       const updatedCount = await playersService.upsertPlayers(externalPlayers);
 
-      console.log(`Synced ${externalPlayers.length} players (${updatedCount} updated/inserted)`);
+      console.log(
+        `Synced ${externalPlayers.length} players (${updatedCount} updated/inserted)`,
+      );
     } catch (error) {
       console.error('Player sync failed:', error);
       throw error;
