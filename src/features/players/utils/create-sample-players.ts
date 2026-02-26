@@ -1,0 +1,368 @@
+import 'dotenv/config';
+
+export async function createSamplePlayers() {
+  const players = [
+    // Catchers (C)
+    {
+      externalId: 'sample-c-001',
+      name: 'J.T. Realmuto',
+      team: 'PHI',
+      positions: ['C'],
+      league: 'NL' as const,
+      playerType: 'hitter' as const,
+      depthChartStatus: 'starter' as const,
+      depthChartOrder: 1,
+      injuryStatus: 'active' as const,
+      stats: [
+        {
+          season: '2023',
+          type: 'hitter' as const,
+          data: { ba: 0.293, hr: 22, rbi: 84, walk: 58, sb: 1 },
+        },
+      ],
+    },
+    {
+      externalId: 'sample-c-002',
+      name: 'Salvador Perez',
+      team: 'KC',
+      positions: ['C'],
+      league: 'AL' as const,
+      playerType: 'hitter' as const,
+      depthChartStatus: 'starter' as const,
+      depthChartOrder: 1,
+      injuryStatus: 'active' as const,
+      stats: [
+        {
+          season: '2023',
+          type: 'hitter' as const,
+          data: { ba: 0.27, hr: 27, rbi: 108, walk: 39, sb: 0 },
+        },
+      ],
+    },
+    // First Base (1B)
+    {
+      externalId: 'sample-1b-001',
+      name: 'Freddie Freeman',
+      team: 'LAD',
+      positions: ['1B'],
+      league: 'NL' as const,
+      playerType: 'hitter' as const,
+      depthChartStatus: 'starter' as const,
+      depthChartOrder: 1,
+      injuryStatus: 'active' as const,
+      stats: [
+        {
+          season: '2023',
+          type: 'hitter' as const,
+          data: { ba: 0.33, hr: 18, rbi: 89, walk: 60, sb: 2 },
+        },
+      ],
+    },
+    {
+      externalId: 'sample-1b-002',
+      name: 'Paul Goldschmidt',
+      team: 'STL',
+      positions: ['1B'],
+      league: 'NL' as const,
+      playerType: 'hitter' as const,
+      depthChartStatus: 'starter' as const,
+      depthChartOrder: 1,
+      injuryStatus: 'active' as const,
+      stats: [
+        {
+          season: '2023',
+          type: 'hitter' as const,
+          data: { ba: 0.307, hr: 27, rbi: 98, walk: 63, sb: 5 },
+        },
+      ],
+    },
+    // Second Base (2B)
+    {
+      externalId: 'sample-2b-001',
+      name: 'Jose Altuve',
+      team: 'HOU',
+      positions: ['2B'],
+      league: 'AL' as const,
+      playerType: 'hitter' as const,
+      depthChartStatus: 'starter' as const,
+      depthChartOrder: 1,
+      injuryStatus: 'active' as const,
+      stats: [
+        {
+          season: '2023',
+          type: 'hitter' as const,
+          data: { ba: 0.303, hr: 16, rbi: 66, walk: 45, sb: 6 },
+        },
+      ],
+    },
+    {
+      externalId: 'sample-2b-002',
+      name: 'Gleyber Torres',
+      team: 'NYY',
+      positions: ['2B'],
+      league: 'AL' as const,
+      playerType: 'hitter' as const,
+      depthChartStatus: 'starter' as const,
+      depthChartOrder: 1,
+      injuryStatus: 'active' as const,
+      stats: [
+        {
+          season: '2023',
+          type: 'hitter' as const,
+          data: { ba: 0.266, hr: 19, rbi: 66, walk: 40, sb: 3 },
+        },
+      ],
+    },
+    // Third Base (3B)
+    {
+      externalId: 'sample-3b-001',
+      name: 'Manny Machado',
+      team: 'SD',
+      positions: ['3B'],
+      league: 'NL' as const,
+      playerType: 'hitter' as const,
+      depthChartStatus: 'starter' as const,
+      depthChartOrder: 1,
+      injuryStatus: 'active' as const,
+      stats: [
+        {
+          season: '2023',
+          type: 'hitter' as const,
+          data: { ba: 0.287, hr: 32, rbi: 105, walk: 62, sb: 4 },
+        },
+      ],
+    },
+    {
+      externalId: 'sample-3b-002',
+      name: 'Nolan Arenado',
+      team: 'PHI',
+      positions: ['3B'],
+      league: 'NL' as const,
+      playerType: 'hitter' as const,
+      depthChartStatus: 'starter' as const,
+      depthChartOrder: 1,
+      injuryStatus: 'active' as const,
+      stats: [
+        {
+          season: '2023',
+          type: 'hitter' as const,
+          data: { ba: 0.279, hr: 22, rbi: 83, walk: 44, sb: 3 },
+        },
+      ],
+    },
+    // Shortstop (SS)
+    {
+      externalId: 'sample-ss-001',
+      name: 'Francisco Lindor',
+      team: 'NYM',
+      positions: ['SS'],
+      league: 'NL' as const,
+      playerType: 'hitter' as const,
+      depthChartStatus: 'starter' as const,
+      depthChartOrder: 1,
+      injuryStatus: 'active' as const,
+      stats: [
+        {
+          season: '2023',
+          type: 'hitter' as const,
+          data: { ba: 0.263, hr: 19, rbi: 72, walk: 66, sb: 16 },
+        },
+      ],
+    },
+    {
+      externalId: 'sample-ss-002',
+      name: 'Corey Seager',
+      team: 'TEX',
+      positions: ['SS'],
+      league: 'AL' as const,
+      playerType: 'hitter' as const,
+      depthChartStatus: 'starter' as const,
+      depthChartOrder: 1,
+      injuryStatus: 'active' as const,
+      stats: [
+        {
+          season: '2023',
+          type: 'hitter' as const,
+          data: { ba: 0.289, hr: 21, rbi: 85, walk: 53, sb: 6 },
+        },
+      ],
+    },
+    // Outfield (OF)
+    {
+      externalId: 'sample-of-001',
+      name: 'Mike Trout',
+      team: 'LAA',
+      positions: ['OF'],
+      league: 'AL' as const,
+      playerType: 'hitter' as const,
+      depthChartStatus: 'starter' as const,
+      depthChartOrder: 1,
+      injuryStatus: 'active' as const,
+      stats: [
+        {
+          season: '2023',
+          type: 'hitter' as const,
+          data: { ba: 0.283, hr: 32, rbi: 88, walk: 79, sb: 12 },
+        },
+      ],
+    },
+    {
+      externalId: 'sample-of-002',
+      name: 'Juan Soto',
+      team: 'SD',
+      positions: ['OF'],
+      league: 'NL' as const,
+      playerType: 'hitter' as const,
+      depthChartStatus: 'starter' as const,
+      depthChartOrder: 1,
+      injuryStatus: 'active' as const,
+      stats: [
+        {
+          season: '2023',
+          type: 'hitter' as const,
+          data: { ba: 0.302, hr: 41, rbi: 109, walk: 98, sb: 2 },
+        },
+      ],
+    },
+    // Designated Hitter (DH)
+    {
+      externalId: 'sample-dh-001',
+      name: 'Kyle Schwarber',
+      team: 'PHI',
+      positions: ['DH'],
+      league: 'NL' as const,
+      playerType: 'hitter' as const,
+      depthChartStatus: 'starter' as const,
+      depthChartOrder: 1,
+      injuryStatus: 'active' as const,
+      stats: [
+        {
+          season: '2023',
+          type: 'hitter' as const,
+          data: { ba: 0.253, hr: 38, rbi: 92, walk: 75, sb: 3 },
+        },
+      ],
+    },
+    {
+      externalId: 'sample-dh-002',
+      name: 'Nelson Cruz',
+      team: 'LAD',
+      positions: ['DH'],
+      league: 'NL' as const,
+      playerType: 'hitter' as const,
+      depthChartStatus: 'starter' as const,
+      depthChartOrder: 1,
+      injuryStatus: 'active' as const,
+      stats: [
+        {
+          season: '2023',
+          type: 'hitter' as const,
+          data: { ba: 0.272, hr: 25, rbi: 76, walk: 41, sb: 0 },
+        },
+      ],
+    },
+    // Starting Pitcher (SP)
+    {
+      externalId: 'sample-sp-001',
+      name: 'Justin Verlander',
+      team: 'HOU',
+      positions: ['SP'],
+      league: 'AL' as const,
+      playerType: 'pitcher' as const,
+      depthChartStatus: 'starter' as const,
+      depthChartOrder: 1,
+      injuryStatus: 'active' as const,
+      stats: [
+        {
+          season: '2023',
+          type: 'pitcher' as const,
+          data: {
+            era: 2.54,
+            wins: 20,
+            losses: 5,
+            saves: 0,
+            strikeouts: 202,
+            innings: 228.0,
+          },
+        },
+      ],
+    },
+    {
+      externalId: 'sample-sp-002',
+      name: 'Gerrit Cole',
+      team: 'NYY',
+      positions: ['SP'],
+      league: 'AL' as const,
+      playerType: 'pitcher' as const,
+      depthChartStatus: 'starter' as const,
+      depthChartOrder: 1,
+      injuryStatus: 'active' as const,
+      stats: [
+        {
+          season: '2023',
+          type: 'pitcher' as const,
+          data: {
+            era: 3.33,
+            wins: 17,
+            losses: 8,
+            saves: 0,
+            strikeouts: 206,
+            innings: 209.0,
+          },
+        },
+      ],
+    },
+    // Relief Pitcher (RP)
+    {
+      externalId: 'sample-rp-001',
+      name: 'Josh Hader',
+      team: 'SD',
+      positions: ['RP'],
+      league: 'NL' as const,
+      playerType: 'pitcher' as const,
+      depthChartStatus: 'backup' as const,
+      depthChartOrder: 1,
+      injuryStatus: 'active' as const,
+      stats: [
+        {
+          season: '2023',
+          type: 'pitcher' as const,
+          data: {
+            era: 2.53,
+            wins: 7,
+            losses: 4,
+            saves: 6,
+            strikeouts: 147,
+            innings: 64.0,
+          },
+        },
+      ],
+    },
+    {
+      externalId: 'sample-rp-002',
+      name: 'Camilo Doval',
+      team: 'SF',
+      positions: ['RP'],
+      league: 'NL' as const,
+      playerType: 'pitcher' as const,
+      depthChartStatus: 'backup' as const,
+      depthChartOrder: 2,
+      injuryStatus: 'active' as const,
+      stats: [
+        {
+          season: '2023',
+          type: 'pitcher' as const,
+          data: {
+            era: 3.21,
+            wins: 6,
+            losses: 5,
+            saves: 2,
+            strikeouts: 138,
+            innings: 92.0,
+          },
+        },
+      ],
+    },
+  ];
+  return players;
+}

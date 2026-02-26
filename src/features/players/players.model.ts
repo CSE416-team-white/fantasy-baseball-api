@@ -35,6 +35,16 @@ const playerSchema = new Schema<Player>(
       required: true,
       enum: ['hitter', 'pitcher'],
     },
+    stats: [
+      {
+        season: String,
+        type: {
+          type: String,
+          enum: ['hitter', 'pitcher'],
+        },
+        data: Schema.Types.Mixed,
+      },
+    ],
     jerseyNumber: {
       type: String,
     },

@@ -11,8 +11,8 @@ describe('PlayersService', () => {
       team: 'NYY',
       positions: ['OF'],
       league: 'AL',
-      injuryStatus: 'active',
       playerType: 'hitter',
+      injuryStatus: 'active',
       batSide: 'R',
       active: true,
     },
@@ -22,8 +22,8 @@ describe('PlayersService', () => {
       team: 'LAA',
       positions: ['DH', 'SP'],
       league: 'AL',
-      injuryStatus: 'active',
       playerType: 'pitcher',
+      injuryStatus: 'active',
       pitchHand: 'R',
       active: true,
     },
@@ -33,8 +33,8 @@ describe('PlayersService', () => {
       team: 'LAD',
       positions: ['OF'],
       league: 'NL',
-      injuryStatus: 'active',
       playerType: 'hitter',
+      injuryStatus: 'active',
       batSide: 'R',
       active: true,
     },
@@ -44,8 +44,8 @@ describe('PlayersService', () => {
       team: 'LAD',
       positions: ['1B'],
       league: 'NL',
-      injuryStatus: 'active',
       playerType: 'hitter',
+      injuryStatus: 'active',
       batSide: 'L',
       active: true,
     },
@@ -162,6 +162,10 @@ describe('PlayersService', () => {
         players[0]._id.toString(),
       );
 
+      if (!player) {
+        throw new Error('Player not found');
+      }
+
       expect(player.name).toBe('Aaron Judge');
       expect(player.team).toBe('NYY');
     });
@@ -185,8 +189,8 @@ describe('PlayersService', () => {
         team: 'SD',
         positions: ['OF'],
         league: 'NL',
-        injuryStatus: 'active',
         playerType: 'hitter',
+        injuryStatus: 'active',
         batSide: 'L',
         active: true,
       };
@@ -205,8 +209,8 @@ describe('PlayersService', () => {
         team: 'LAA',
         positions: ['DH', 'SP'],
         league: 'AL',
-        injuryStatus: 'active',
         playerType: 'pitcher',
+        injuryStatus: 'active',
         pitchHand: 'R',
         active: true,
       };
@@ -227,8 +231,8 @@ describe('PlayersService', () => {
         team: 'BOS',
         positions: ['SS'],
         league: 'AL',
-        injuryStatus: 'active',
         playerType: 'hitter',
+        injuryStatus: 'active',
         batSide: 'R',
         active: true,
       };
@@ -246,8 +250,8 @@ describe('PlayersService', () => {
         team: 'NYY',
         positions: ['OF', 'DH'],
         league: 'AL',
-        injuryStatus: 'day-to-day',
         playerType: 'hitter',
+        injuryStatus: 'day-to-day',
         batSide: 'R',
         active: true,
       };

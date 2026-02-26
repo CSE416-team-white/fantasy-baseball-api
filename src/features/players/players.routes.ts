@@ -25,6 +25,11 @@ const router = Router();
  *         schema:
  *           type: string
  *       - in: query
+ *         name: playerType
+ *         schema:
+ *           type: string
+ *           enum: [hitter, pitcher]
+ *       - in: query
  *         name: search
  *         schema:
  *           type: string

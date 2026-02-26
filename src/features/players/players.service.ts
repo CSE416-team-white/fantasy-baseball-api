@@ -3,7 +3,14 @@ import type { Player, PlayerFilters } from './players.types.js';
 
 export class PlayersService {
   async getPlayers(filters: PlayerFilters = {}) {
-    const { league, position, search, page = 1, limit = 50 } = filters;
+    const {
+      league,
+      position,
+      playerType,
+      search,
+      page = 1,
+      limit = 50,
+    } = filters;
 
     const query: Record<string, unknown> = {};
 
@@ -15,6 +22,11 @@ export class PlayersService {
     // Filter by position
     if (position) {
       query.positions = position;
+    }
+
+    // Filter by player type
+    if (playerType) {
+      query.playerType = playerType;
     }
 
     // Search by name
