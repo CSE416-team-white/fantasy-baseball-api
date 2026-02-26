@@ -35,6 +35,10 @@ interface MLBPlayer {
   active?: boolean;
 }
 
+interface MLBPlayerDetailResponse {
+  people: MLBPlayer[];
+}
+
 interface MLBRosterEntry {
   person: MLBPlayer;
   jerseyNumber?: string;
@@ -73,6 +77,18 @@ async function getTeamRoster(teamId: number): Promise<MLBRosterResponse> {
   return fetchJSON<MLBRosterResponse>(
     `${MLB_API_BASE}/teams/${teamId}/roster/40Man`,
   );
+}
+
+async function getPlayerDetails(playerId: number): Promise<MLBPlayer | null> {
+  try {
+    const response = await fetchJSON<MLBPlayerDetailResponse>(
+      `${MLB_API_BASE}/people/${playerId}`,
+    );
+    return response.people[0] || null;
+  } catch (error) {
+    console.error(`Failed to fetch details for player ${playerId}:`, error);
+    return null;
+  }
 }
 
 function mapPositionToOurs(mlbPosition: string): PlayerInput['positions'] {
@@ -128,8 +144,8 @@ async function fetchAllMLBPlayers(): Promise<PlayerInput[]> {
       for (const rosterEntry of roster.roster) {
         const player = rosterEntry.person;
 
-        // Players on 40-man roster are considered active
-        // The 'active' field isn't provided in roster endpoint, only in player detail endpoint
+        // Fetch detailed player info (includes birthDate, height, weight, etc.)
+        const playerDetails = await getPlayerDetails(player.id);
 
         const league = team.league.id === 103 ? 'AL' : 'NL';
         const positions = mapPositionToOurs(rosterEntry.position.abbreviation);
@@ -143,21 +159,21 @@ async function fetchAllMLBPlayers(): Promise<PlayerInput[]> {
           league,
           jerseyNumber: rosterEntry.jerseyNumber,
           injuryStatus,
-          birthDate: player.birthDate,
-          age: player.currentAge,
-          height: player.height,
-          weight: player.weight,
-          batSide: player.batSide?.code as 'R' | 'L' | 'S' | undefined,
-          pitchHand: player.pitchHand?.code as 'R' | 'L' | undefined,
-          mlbDebutDate: player.mlbDebutDate,
-          active: true, // Players on 40-man roster are active
+          birthDate: playerDetails?.birthDate,
+          age: playerDetails?.currentAge,
+          height: playerDetails?.height,
+          weight: playerDetails?.weight,
+          batSide: playerDetails?.batSide?.code as 'R' | 'L' | 'S' | undefined,
+          pitchHand: playerDetails?.pitchHand?.code as 'R' | 'L' | undefined,
+          mlbDebutDate: playerDetails?.mlbDebutDate,
+          active: playerDetails?.active ?? true,
         };
 
         allPlayers.push(playerInput);
-      }
 
-      // Rate limiting - be nice to MLB's API
-      await new Promise((resolve) => setTimeout(resolve, 100));
+        // Rate limiting for individual player requests
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
     } catch (error) {
       console.error(`Failed to fetch roster for ${team.name}:`, error);
       // Continue with other teams even if one fails
