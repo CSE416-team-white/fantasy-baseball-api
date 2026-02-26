@@ -11,7 +11,7 @@
     "test:watch": "vitest",
     "format": "prettier --write \"**/*.{ts,js,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,js,json,md}\"",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "dependencies": {
     "@agendajs/mongo-backend": "^3.2.0",
