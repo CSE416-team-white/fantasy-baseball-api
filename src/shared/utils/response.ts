@@ -26,7 +26,7 @@ export function sendSuccess<T>(
   res: Response,
   data: T,
   message?: string,
-  statusCode = HTTP_STATUS.OK,
+  statusCode: number = HTTP_STATUS.OK,
 ): void {
   const response: SuccessResponse<T> = {
     success: true,
