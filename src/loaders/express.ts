@@ -5,8 +5,23 @@ import { errorHandler } from '../shared/middlewares/error-handler.js';
 import { swaggerSpec } from '../config/swagger.js';
 import playersRoutes from '../features/players/players.routes.js';
 import leaguesRoutes from '../features/leagues/leagues.routes.js';
+import apiKeysRoutes from '../features/api-keys/api-keys.routes.js';
+import { createRequireApiKey } from '../shared/middlewares/require-api-key.js';
+import { apiKeysService } from '../features/api-keys/api-keys.service.js';
+import { env } from '../config/env.js';
 
 export function loadExpress(app: Express): void {
+  const requireApiKey = createRequireApiKey(
+    apiKeysService.authenticateApiKey.bind(apiKeysService),
+  );
+  const apiKeyMiddleware = env.disableApiKeyAuth
+    ? (
+        _req: express.Request,
+        _res: express.Response,
+        next: express.NextFunction,
+      ) => next()
+    : requireApiKey;
+
   app.use(cors());
   app.use(express.json());
 
@@ -40,8 +55,9 @@ export function loadExpress(app: Express): void {
   app.use('/api/health', health);
 
   // Feature routes
-  app.use('/api/players', playersRoutes);
-  app.use('/api/leagues', leaguesRoutes);
+  app.use('/api/api-keys', apiKeyMiddleware, apiKeysRoutes);
+  app.use('/api/players', apiKeyMiddleware, playersRoutes);
+  app.use('/api/leagues', apiKeyMiddleware, leaguesRoutes);
 
   app.use(errorHandler);
 }
