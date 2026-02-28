@@ -1,8 +1,10 @@
 import { beforeAll, afterAll } from 'vitest';
-import { connectDB } from './loaders/mongoose.js';
 import mongoose from 'mongoose';
 
 beforeAll(async () => {
+  process.env.API_KEY_PEPPER =
+    process.env.API_KEY_PEPPER || 'test-api-key-pepper';
+  const { connectDB } = await import('./loaders/mongoose.js');
   await connectDB();
 });
 
