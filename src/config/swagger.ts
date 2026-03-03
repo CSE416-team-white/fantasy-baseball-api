@@ -10,6 +10,16 @@ const options: swaggerJsdoc.Options = {
       description:
         'API for fantasy baseball draft recommendations and player data',
     },
+    components: {
+      securitySchemes: {
+        ApiKeyAuth: {
+          type: 'apiKey',
+          in: 'header',
+          name: 'x-api-key',
+          description: 'API key required for protected endpoints',
+        },
+      },
+    },
     servers: [
       {
         url: `http://localhost:${env.port}`,
