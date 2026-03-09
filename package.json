@@ -11,6 +11,7 @@
     "test:watch": "vitest",
     "api-keys": "tsx src/features/api-keys/utils/manage-api-keys.ts",
     "injure-judge": "tsx src/features/players/utils/set-aaron-judge-injury.ts",
+    "sync-players": "tsx src/features/players/utils/run-sync-players.ts",
     "format": "prettier --write \"**/*.{ts,js,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,js,json,md}\"",
     "prepare": "husky || true"
