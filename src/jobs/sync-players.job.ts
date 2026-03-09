@@ -1,5 +1,6 @@
 import { getAgenda } from '../loaders/agenda.js';
 import { playersService } from '../features/players/players.service.js';
+import { playerSyncRunsService } from '../features/players/player-sync-runs.service.js';
 import type { PlayerInput } from '../features/players/players.types.js';
 
 const MLB_API_BASE = 'https://statsapi.mlb.com/api/v1';
@@ -217,10 +218,15 @@ export function definePlayerSyncJob() {
   const agenda = getAgenda();
 
   // Define the job
-  agenda.define('sync-players', async () => {
+  agenda.define('sync-players', async (job) => {
     console.log('Running player sync job...');
+    const syncRunId = job.attrs.data?.syncRunId as string | undefined;
 
     try {
+      if (syncRunId) {
+        await playerSyncRunsService.markRunning(syncRunId);
+      }
+
       // Fetch all active MLB players from MLB Stats API
       const externalPlayers = await fetchAllMLBPlayers();
 
@@ -231,8 +237,22 @@ export function definePlayerSyncJob() {
       console.log(
         `Synced ${externalPlayers.length} players (${updatedCount} updated/inserted)`,
       );
+
+      if (syncRunId) {
+        await playerSyncRunsService.markSucceeded(syncRunId, {
+          fetchedCount: externalPlayers.length,
+          updatedCount,
+        });
+      }
     } catch (error) {
       console.error('Player sync failed:', error);
+
+      if (syncRunId) {
+        const message =
+          error instanceof Error ? error.message : 'Unknown error';
+        await playerSyncRunsService.markFailed(syncRunId, message);
+      }
+
       throw error;
     }
   });
@@ -248,5 +268,7 @@ export async function schedulePlayerSync() {
 // Manual trigger (useful for testing or admin endpoints)
 export async function triggerPlayerSyncNow() {
   const agenda = getAgenda();
-  await agenda.now('sync-players');
+  const syncRun = await playerSyncRunsService.createQueuedRun();
+  await agenda.now('sync-players', { syncRunId: syncRun.id });
+  return syncRun;
 }

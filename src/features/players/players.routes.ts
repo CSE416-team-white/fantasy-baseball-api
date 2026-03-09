@@ -6,6 +6,8 @@ import { asyncHandler } from '@/shared/middlewares/async-handler.js';
 import { ApiError } from '@/shared/utils/api-error.js';
 import { PlayerFiltersSchema } from './players.types.js';
 import { triggerPlayerSyncNow } from '@/jobs/sync-players.job.js';
+import { playerSyncRunsService } from './player-sync-runs.service.js';
+import { HTTP_STATUS } from '@/shared/constants.js';
 
 const router = Router();
 
@@ -62,6 +64,49 @@ router.post(
   asyncHandler(async (_req: Request, res: Response) => {
     await triggerPlayerSyncNow();
     sendSuccess(res, { message: 'Player sync triggered successfully' });
+  }),
+);
+
+/**
+ * @swagger
+ * /api/players/sync/tracked:
+ *   post:
+ *     summary: Trigger player sync and return a sync run ID for status polling
+ */
+router.post(
+  '/sync/tracked',
+  asyncHandler(async (_req: Request, res: Response) => {
+    const syncRun = await triggerPlayerSyncNow();
+    sendSuccess(
+      res,
+      {
+        syncRunId: syncRun.id,
+        status: syncRun.status,
+      },
+      undefined,
+      HTTP_STATUS.CREATED,
+    );
+  }),
+);
+
+/**
+ * @swagger
+ * /api/players/sync-runs/{id}:
+ *   get:
+ *     summary: Get player sync run status by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ */
+router.get(
+  '/sync-runs/:id',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const syncRun = await playerSyncRunsService.getById(id as string);
+    sendSuccess(res, syncRun);
   }),
 );
 
