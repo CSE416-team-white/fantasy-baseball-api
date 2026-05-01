@@ -64,7 +64,7 @@ export class LeaguesService {
   ): Promise<League> {
     const updated = await LeagueModel.findOneAndUpdate(
       { externalId: leagueData.externalId },
-      leagueData,
+      { $set: leagueData },
       { upsert: true, new: true, runValidators: true },
     ).lean();
 
