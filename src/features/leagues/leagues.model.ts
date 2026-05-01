@@ -30,6 +30,23 @@ function isValidTeams(value: unknown): boolean {
   );
 }
 
+function isValidDraftPicks(value: unknown): boolean {
+  if (!Array.isArray(value)) return false;
+
+  return value.every(
+    (entry) =>
+      Array.isArray(entry) &&
+      entry.length === 5 &&
+      typeof entry[0] === 'number' &&
+      entry[0] >= 1 &&
+      typeof entry[1] === 'string' &&
+      typeof entry[2] === 'string' &&
+      typeof entry[3] === 'string' &&
+      typeof entry[4] === 'number' &&
+      entry[4] >= 0,
+  );
+}
+
 const leagueSchema = new Schema<League>(
   {
     externalId: {
@@ -121,6 +138,15 @@ const leagueSchema = new Schema<League>(
           'taken_players must be [player_id, team_id, position_slot, price] tuples',
       },
     },
+    draft_picks: {
+      type: [[Schema.Types.Mixed]],
+      default: [],
+      validate: {
+        validator: isValidDraftPicks,
+        message:
+          'draft_picks must be [pick_number, nominating_team_id, winning_team_id, player_id, salary] tuples',
+      },
+    },
     teams: {
       type: [[Schema.Types.Mixed]],
       default: [],
@@ -128,6 +154,9 @@ const leagueSchema = new Schema<League>(
         validator: isValidTeams,
         message: 'teams must be [team_id, team_name, current_budget] tuples',
       },
+    },
+    draftStateJson: {
+      type: Schema.Types.Mixed,
     },
     isDefault: {
       type: Boolean,

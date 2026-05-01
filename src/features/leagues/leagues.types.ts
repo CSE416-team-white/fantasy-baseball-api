@@ -65,6 +65,14 @@ export const TakenPlayerSchema = z.tuple([
   z.number().min(0),
 ]);
 
+export const DraftPickSchema = z.tuple([
+  z.number().int().min(1),
+  z.string(),
+  z.string(),
+  z.string(),
+  z.number().int().min(0),
+]);
+
 export const LeagueTeamSchema = z.tuple([
   z.string(),
   z.string(),
@@ -83,7 +91,9 @@ export const LeagueSchema = z.object({
   rosterSlots: RosterSlotsSchema,
   totalBudget: z.number().int().min(1).optional(),
   taken_players: z.array(TakenPlayerSchema).optional(),
+  draft_picks: z.array(DraftPickSchema).optional(),
   teams: z.array(LeagueTeamSchema).optional(),
+  draftStateJson: z.unknown().optional(),
   isDefault: z.boolean().default(false),
   categoryWeights: z.record(z.string(), z.number()).optional(),
 });
@@ -105,6 +115,7 @@ export type PitchingCategory = z.infer<typeof PitchingCategorySchema>;
 export type LeagueFormat = z.infer<typeof LeagueFormatSchema>;
 export type DraftType = z.infer<typeof DraftTypeSchema>;
 export type TakenPlayer = z.infer<typeof TakenPlayerSchema>;
+export type DraftPick = z.infer<typeof DraftPickSchema>;
 export type LeagueTeam = z.infer<typeof LeagueTeamSchema>;
 export type LeagueInput = z.infer<typeof LeagueSchema>;
 export type LeagueFilters = z.infer<typeof LeagueFiltersSchema>;
