@@ -55,7 +55,10 @@ router.get(
   asyncHandler(async (req: Request, res: Response) => {
     const { leagueId } = req.params;
     const query = ValuationQuerySchema.parse(req.query);
-    const result = await valuationsService.calculateValuations(leagueId as string, query);
+    const result = await valuationsService.calculateValuations(
+      leagueId as string,
+      query,
+    );
     sendSuccess(res, result);
   }),
 );

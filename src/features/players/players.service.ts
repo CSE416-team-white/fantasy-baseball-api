@@ -1,5 +1,9 @@
 import { PlayerModel } from './players.model.js';
-import type { DepthChartStatus, Player, PlayerFilters } from './players.types.js';
+import type {
+  DepthChartStatus,
+  Player,
+  PlayerFilters,
+} from './players.types.js';
 
 export interface DepthChartUpdate {
   name: string;

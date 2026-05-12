@@ -2,7 +2,11 @@ import { PlayerModel } from '../players/players.model.js';
 import { LeagueModel } from '../leagues/leagues.model.js';
 import type { Player } from '../players/players.types.js';
 import type { League } from '../leagues/leagues.types.js';
-import type { ValuationQuery, PlayerValuation, ValuationMultipliers } from './valuations.types.js';
+import type {
+  ValuationQuery,
+  PlayerValuation,
+  ValuationMultipliers,
+} from './valuations.types.js';
 import { ApiError } from '@/shared/utils/api-error.js';
 
 // Maps league scoring category names → player stat field names
@@ -36,13 +40,21 @@ export class ValuationsService {
     const league = await LeagueModel.findById(leagueId).lean();
     if (!league) throw new ApiError(404, 'League not found');
 
-    const allPlayers = (await PlayerModel.find({ active: true }).lean()) as unknown as Player[];
+    const allPlayers = (await PlayerModel.find({
+      active: true,
+    }).lean()) as unknown as Player[];
 
     const hitters = allPlayers.filter((p) => p.playerType === 'hitter');
     const pitchers = allPlayers.filter((p) => p.playerType === 'pitcher');
 
-    const hitterAveraged = hitters.map((p) => ({ player: p, avgStats: this.averageStats(p) }));
-    const pitcherAveraged = pitchers.map((p) => ({ player: p, avgStats: this.averageStats(p) }));
+    const hitterAveraged = hitters.map((p) => ({
+      player: p,
+      avgStats: this.averageStats(p),
+    }));
+    const pitcherAveraged = pitchers.map((p) => ({
+      player: p,
+      avgStats: this.averageStats(p),
+    }));
 
     const hitterScored = this.computeZScores(
       hitterAveraged,
@@ -64,7 +76,9 @@ export class ValuationsService {
     const hitterBudget = totalBudget * numTeams * 0.67;
     const pitcherBudget = totalBudget * numTeams * 0.33;
 
-    const takenPlayerIds = new Set((league.taken_players ?? []).map(([pid]) => String(pid)));
+    const takenPlayerIds = new Set(
+      (league.taken_players ?? []).map(([pid]) => String(pid)),
+    );
 
     const hitterValuations = this.scoreToValuations(
       hitterScored,
@@ -112,7 +126,9 @@ export class ValuationsService {
     const counts: Record<string, number> = {};
 
     for (const stat of relevantStats) {
-      for (const [key, val] of Object.entries(stat.data as Record<string, unknown>)) {
+      for (const [key, val] of Object.entries(
+        stat.data as Record<string, unknown>,
+      )) {
         if (typeof val === 'number') {
           summed[key] = (summed[key] ?? 0) + val;
           counts[key] = (counts[key] ?? 0) + 1;
@@ -120,7 +136,9 @@ export class ValuationsService {
       }
     }
 
-    return Object.fromEntries(Object.keys(summed).map((k) => [k, summed[k] / counts[k]]));
+    return Object.fromEntries(
+      Object.keys(summed).map((k) => [k, summed[k] / counts[k]]),
+    );
   }
 
   private computeZScores(
@@ -146,7 +164,8 @@ export class ValuationsService {
     for (const [cat, vals] of Object.entries(catPopulation)) {
       if (vals.length < 2) continue;
       const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
-      const variance = vals.reduce((a, v) => a + (v - mean) ** 2, 0) / vals.length;
+      const variance =
+        vals.reduce((a, v) => a + (v - mean) ** 2, 0) / vals.length;
       catStats[cat] = { mean, std: Math.sqrt(variance) };
     }
 
@@ -177,7 +196,10 @@ export class ValuationsService {
     takenPlayerIds: Set<string>,
     teamId?: string,
   ): PlayerValuation[] {
-    const totalPositive = scored.reduce((acc, { rawZSum }) => acc + Math.max(0, rawZSum), 0);
+    const totalPositive = scored.reduce(
+      (acc, { rawZSum }) => acc + Math.max(0, rawZSum),
+      0,
+    );
 
     return scored.map(({ player, avgStats, rawZSum }) => {
       const baseValue =
@@ -221,7 +243,10 @@ export class ValuationsService {
     let depthChart: number;
     if (player.depthChartOrder === 1 || player.depthChartStatus === 'starter') {
       depthChart = 1.5;
-    } else if (player.depthChartOrder === 2 || player.depthChartStatus === 'backup') {
+    } else if (
+      player.depthChartOrder === 2 ||
+      player.depthChartStatus === 'backup'
+    ) {
       depthChart = 1.0;
     } else {
       depthChart = 0.85;
@@ -251,15 +276,24 @@ export class ValuationsService {
     }
 
     if (teamId && !this.teamHasOpenSlot(player, league, teamId)) {
-      return { draftable: false, reason: 'No open roster slot for this position' };
+      return {
+        draftable: false,
+        reason: 'No open roster slot for this position',
+      };
     }
 
     return { draftable: true };
   }
 
-  private teamHasOpenSlot(player: Player, league: League, teamId: string): boolean {
+  private teamHasOpenSlot(
+    player: Player,
+    league: League,
+    teamId: string,
+  ): boolean {
     const slots = league.rosterSlots as Record<string, number>;
-    const teamDrafted = (league.taken_players ?? []).filter(([, tid]) => tid === teamId);
+    const teamDrafted = (league.taken_players ?? []).filter(
+      ([, tid]) => tid === teamId,
+    );
 
     const occupied: Record<string, number> = {};
     for (const [, , posSlot] of teamDrafted) {
@@ -271,7 +305,10 @@ export class ValuationsService {
     }
 
     // Hitters can fill UTIL slot
-    if (player.playerType === 'hitter' && (occupied['UTIL'] ?? 0) < (slots['UTIL'] ?? 0)) {
+    if (
+      player.playerType === 'hitter' &&
+      (occupied['UTIL'] ?? 0) < (slots['UTIL'] ?? 0)
+    ) {
       return true;
     }
 
