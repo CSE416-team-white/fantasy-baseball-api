@@ -58,12 +58,20 @@ export const LeagueFormatSchema = z.enum([
 // Draft type
 export const DraftTypeSchema = z.enum(['auction', 'snake']);
 
-export const TakenPlayerSchema = z.tuple([
+const TakenPlayerBaseSchema = z.tuple([
   z.string(),
   z.string(),
   z.string(),
   z.number().min(0),
+  z.string().max(2),
 ]);
+
+export const TakenPlayerSchema = z.preprocess((val) => {
+  if (!Array.isArray(val) || val.length < 4) return val;
+  const [playerId, teamId, slot, price, fifth] = val;
+  const contract = typeof fifth === 'string' ? fifth : '';
+  return [playerId, teamId, slot, price, contract];
+}, TakenPlayerBaseSchema);
 
 export const DraftPickSchema = z.tuple([
   z.number().int().min(1),

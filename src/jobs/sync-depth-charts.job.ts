@@ -75,7 +75,9 @@ interface ESPNDepthChartResponse {
 async function fetchJSON<T>(url: string): Promise<T> {
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`ESPN API error: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `ESPN API error: ${response.status} ${response.statusText}`,
+    );
   }
   return response.json() as Promise<T>;
 }
@@ -126,14 +128,18 @@ async function syncAllDepthCharts(): Promise<void> {
 
   for (const [espnId, mlbAbbr] of Object.entries(ESPN_TEAM_MAP)) {
     try {
-      console.log(`Fetching depth chart for ${mlbAbbr} (ESPN ID: ${espnId})...`);
+      console.log(
+        `Fetching depth chart for ${mlbAbbr} (ESPN ID: ${espnId})...`,
+      );
       const { team, updates } = await fetchTeamDepthChart(
         Number(espnId),
         mlbAbbr,
       );
 
       const updated = await playersService.syncTeamDepthCharts(team, updates);
-      console.log(`  ${mlbAbbr}: ${updated} players updated (${updates.length} in chart)`);
+      console.log(
+        `  ${mlbAbbr}: ${updated} players updated (${updates.length} in chart)`,
+      );
       totalUpdated += updated;
 
       // Polite rate limiting between teams
@@ -144,7 +150,9 @@ async function syncAllDepthCharts(): Promise<void> {
     }
   }
 
-  console.log(`Depth chart sync complete. Total players updated: ${totalUpdated}`);
+  console.log(
+    `Depth chart sync complete. Total players updated: ${totalUpdated}`,
+  );
 }
 
 export function defineDepthChartSyncJob() {

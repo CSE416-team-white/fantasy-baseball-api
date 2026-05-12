@@ -7,12 +7,14 @@ function isValidTakenPlayers(value: unknown): boolean {
   return value.every(
     (entry) =>
       Array.isArray(entry) &&
-      entry.length === 4 &&
+      (entry.length === 4 || entry.length === 5) &&
       typeof entry[0] === 'string' &&
       typeof entry[1] === 'string' &&
       typeof entry[2] === 'string' &&
       typeof entry[3] === 'number' &&
-      entry[3] >= 0,
+      entry[3] >= 0 &&
+      (entry.length === 4 ||
+        (typeof entry[4] === 'string' && entry[4].length <= 2)),
   );
 }
 
@@ -135,7 +137,7 @@ const leagueSchema = new Schema<League>(
       validate: {
         validator: isValidTakenPlayers,
         message:
-          'taken_players must be [player_id, team_id, position_slot, price] tuples',
+          'taken_players must be [player_id, team_id, position_slot, price] or [player_id, team_id, position_slot, price, contract] tuples',
       },
     },
     draft_picks: {
