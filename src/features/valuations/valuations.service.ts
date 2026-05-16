@@ -133,6 +133,7 @@ export class ValuationsService {
     const counts: Record<string, number> = {};
 
     for (const stat of relevantStats) {
+      if (!stat.data) continue;
       for (const [key, val] of Object.entries(
         stat.data as Record<string, unknown>,
       )) {
