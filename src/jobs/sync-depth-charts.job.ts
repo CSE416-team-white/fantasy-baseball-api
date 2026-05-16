@@ -95,28 +95,32 @@ async function fetchTeamDepthChart(
   const url = `${ESPN_API_BASE}/teams/${espnTeamId}/depthcharts`;
   const data = await fetchJSON<ESPNDepthChartResponse>(url);
 
-  const updates: DepthChartUpdate[] = [];
-  // Track players already seen so we record only their primary (first) position
-  const seen = new Set<string>();
-
   const positionsMap = data.depthchart[0]?.positions ?? {};
 
+  // Track each player's best (lowest) rank across all positions they appear in.
+  // A player like Aaron Judge may appear at rank 3 in one slot before rank 1 in RF —
+  // we want rank 1 so he's correctly marked as a starter.
+  const bestRank = new Map<string, number>();
+
   for (const [posKey, posEntry] of Object.entries(positionsMap)) {
-    // Skip generic 'p' (pitcher) bucket — it duplicates sp/rp entries
     if (SKIP_ESPN_POSITIONS.has(posKey)) continue;
 
     posEntry.athletes.forEach((athlete, index) => {
       const name = athlete.displayName;
-      if (seen.has(name)) return;
-      seen.add(name);
-
-      // Array index is 0-based; rank is 1-based
       const rank = index + 1;
-      updates.push({
-        name,
-        depthChartStatus: rankToDepthChartStatus(rank),
-        depthChartOrder: rank,
-      });
+      const existing = bestRank.get(name);
+      if (existing === undefined || rank < existing) {
+        bestRank.set(name, rank);
+      }
+    });
+  }
+
+  const updates: DepthChartUpdate[] = [];
+  for (const [name, rank] of bestRank) {
+    updates.push({
+      name,
+      depthChartStatus: rankToDepthChartStatus(rank),
+      depthChartOrder: rank,
     });
   }
 
