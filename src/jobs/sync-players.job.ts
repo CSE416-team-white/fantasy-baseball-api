@@ -243,6 +243,8 @@ async function fetchAllMLBPlayers(): Promise<PlayerInput[]> {
   return allPlayers;
 }
 
+export { fetchAllMLBPlayers as fetchAllMLBPlayersForScript };
+
 export function definePlayerSyncJob() {
   const agenda = getAgenda();
 

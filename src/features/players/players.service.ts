@@ -9,6 +9,7 @@ export interface DepthChartUpdate {
   name: string;
   depthChartStatus: DepthChartStatus;
   depthChartOrder: number;
+  positionOverride?: string[]; // set when ESPN slot tells us the exact position (SP vs RP)
 }
 
 export class PlayersService {
@@ -110,17 +111,14 @@ export class PlayersService {
 
     if (updates.length === 0) return 0;
 
-    const operations = updates.map((u) => ({
-      updateOne: {
-        filter: { name: u.name, team },
-        update: {
-          $set: {
-            depthChartStatus: u.depthChartStatus,
-            depthChartOrder: u.depthChartOrder,
-          },
-        },
-      },
-    }));
+    const operations = updates.map((u) => {
+      const $set: Record<string, unknown> = {
+        depthChartStatus: u.depthChartStatus,
+        depthChartOrder: u.depthChartOrder,
+      };
+      if (u.positionOverride) $set.positions = u.positionOverride;
+      return { updateOne: { filter: { name: u.name, team }, update: { $set } } };
+    });
 
     const result = await PlayerModel.bulkWrite(operations, { ordered: false });
     return result.modifiedCount;
