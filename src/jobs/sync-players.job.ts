@@ -1,6 +1,7 @@
 import { getAgenda } from '../loaders/agenda.js';
 import { playersService } from '../features/players/players.service.js';
 import type { PlayerInput, PlayerPosition } from '../features/players/players.types.js';
+import { notificationsService } from '../features/notifications/notifications.service.js';
 
 const MLB_API_BASE = 'https://statsapi.mlb.com/api/v1';
 const LAST_SEASON = new Date().getFullYear() - 1;
@@ -251,6 +252,11 @@ export function definePlayerSyncJob() {
       const externalPlayers = await fetchAllMLBPlayers();
       const updatedCount = await playersService.upsertPlayers(externalPlayers);
       console.log(`Synced ${externalPlayers.length} players (${updatedCount} updated/inserted)`);
+      notificationsService.push({
+        type: 'players-updated',
+        message: `Player roster synced — ${updatedCount} players updated`,
+        data: { total: externalPlayers.length, updated: updatedCount, syncedAt: new Date().toISOString() },
+      });
     } catch (error) {
       console.error('Player sync failed:', error);
       throw error;

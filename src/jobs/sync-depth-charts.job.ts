@@ -2,6 +2,7 @@ import { getAgenda } from '../loaders/agenda.js';
 import { playersService } from '../features/players/players.service.js';
 import type { DepthChartUpdate } from '../features/players/players.service.js';
 import type { DepthChartStatus } from '../features/players/players.types.js';
+import { notificationsService } from '../features/notifications/notifications.service.js';
 
 const ESPN_API_BASE =
   'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb';
@@ -166,6 +167,11 @@ export function defineDepthChartSyncJob() {
     console.log('Running depth chart sync job...');
     try {
       await syncAllDepthCharts();
+      notificationsService.push({
+        type: 'depth-charts-updated',
+        message: 'MLB depth charts have been refreshed',
+        data: { syncedAt: new Date().toISOString() },
+      });
     } catch (error) {
       console.error('Depth chart sync failed:', error);
       throw error;
