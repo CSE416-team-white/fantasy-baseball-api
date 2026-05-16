@@ -87,7 +87,7 @@ router.get(
  *         description: Notification pushed to all connected clients
  */
 router.post(
-  '/push',
+  '/notifications/push',
   asyncHandler(async (req: Request, res: Response) => {
     const body = z
       .object({
