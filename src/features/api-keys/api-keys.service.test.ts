@@ -121,4 +121,61 @@ describe('ApiKeysService', () => {
       status: 404,
     });
   });
+
+  describe('updateAllowedIPs', () => {
+    it('should set a list of allowed IPs for an existing service', async () => {
+      await apiKeysService.createServiceKey('ip-test-service');
+
+      const updated = await apiKeysService.updateAllowedIPs('ip-test-service', [
+        '203.0.113.1',
+        '198.51.100.7',
+      ]);
+
+      expect(updated.serviceName).toBe('ip-test-service');
+
+      const stored = await ServiceApiKeyModel.findOne({ serviceName: 'ip-test-service' }).lean();
+      expect(stored?.allowedIPs).toEqual(['203.0.113.1', '198.51.100.7']);
+    });
+
+    it('should clear the IP whitelist when given an empty array', async () => {
+      await apiKeysService.createServiceKey('ip-clear-service');
+      await apiKeysService.updateAllowedIPs('ip-clear-service', ['10.0.0.1']);
+
+      await apiKeysService.updateAllowedIPs('ip-clear-service', []);
+
+      const stored = await ServiceApiKeyModel.findOne({ serviceName: 'ip-clear-service' }).lean();
+      expect(stored?.allowedIPs).toEqual([]);
+    });
+
+    it('should replace the existing IP list, not append to it', async () => {
+      await apiKeysService.createServiceKey('ip-replace-service');
+      await apiKeysService.updateAllowedIPs('ip-replace-service', ['10.0.0.1', '10.0.0.2']);
+
+      await apiKeysService.updateAllowedIPs('ip-replace-service', ['192.168.1.1']);
+
+      const stored = await ServiceApiKeyModel.findOne({ serviceName: 'ip-replace-service' }).lean();
+      expect(stored?.allowedIPs).toEqual(['192.168.1.1']);
+      expect(stored?.allowedIPs).toHaveLength(1);
+    });
+
+    it('should throw 404 when updating IPs for a non-existent service', async () => {
+      await expect(
+        apiKeysService.updateAllowedIPs('ghost-service', ['1.2.3.4']),
+      ).rejects.toMatchObject({ status: 404 });
+    });
+
+    it('should include allowedIPs in authenticateApiKey response', async () => {
+      const { rawKey } = await apiKeysService.createServiceKey('auth-ip-service');
+      await apiKeysService.updateAllowedIPs('auth-ip-service', ['203.0.113.5']);
+
+      const client = await apiKeysService.authenticateApiKey(rawKey);
+      expect(client.allowedIPs).toEqual(['203.0.113.5']);
+    });
+
+    it('should return empty allowedIPs by default for new keys', async () => {
+      const { rawKey } = await apiKeysService.createServiceKey('default-ip-service');
+      const client = await apiKeysService.authenticateApiKey(rawKey);
+      expect(client.allowedIPs).toEqual([]);
+    });
+  });
 });

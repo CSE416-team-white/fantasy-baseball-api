@@ -186,6 +186,7 @@ export class ApiKeysService {
       keyId: apiKey._id.toString(),
       serviceName: apiKey.serviceName,
       status: apiKey.status,
+      allowedIPs: apiKey.allowedIPs ?? [],
     };
   }
 
@@ -203,6 +204,32 @@ export class ApiKeysService {
       keyPrefix: apiKey.keyPrefix,
       createdAt: apiKey.createdAt,
       updatedAt: apiKey.updatedAt,
+    });
+  }
+
+  async updateAllowedIPs(
+    serviceNameInput: string,
+    ips: string[],
+  ): Promise<ApiKeyPublic> {
+    const serviceName = ServiceNameSchema.parse(serviceNameInput);
+
+    const updated = await ServiceApiKeyModel.findOneAndUpdate(
+      { serviceName },
+      { allowedIPs: ips },
+      { new: true, runValidators: true },
+    );
+
+    if (!updated) {
+      throw new ApiError(HTTP_STATUS.NOT_FOUND, `Service not found: ${serviceName}`);
+    }
+
+    return toPublicApiKey({
+      _id: updated._id.toString(),
+      serviceName: updated.serviceName,
+      status: updated.status,
+      keyPrefix: updated.keyPrefix,
+      createdAt: updated.createdAt,
+      updatedAt: updated.updatedAt,
     });
   }
 

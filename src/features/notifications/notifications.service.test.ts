@@ -1,0 +1,109 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import type { Response } from 'express';
+import { NotificationsService } from './notifications.service.js';
+
+function mockRes(): Response {
+  return { write: vi.fn() } as unknown as Response;
+}
+
+describe('NotificationsService', () => {
+  let service: NotificationsService;
+
+  beforeEach(() => {
+    service = new NotificationsService();
+  });
+
+  describe('clientCount', () => {
+    it('starts at zero', () => {
+      expect(service.clientCount).toBe(0);
+    });
+
+    it('increments when a client is added', () => {
+      service.addClient(mockRes());
+      service.addClient(mockRes());
+      expect(service.clientCount).toBe(2);
+    });
+
+    it('decrements when a client is removed', () => {
+      const res = mockRes();
+      service.addClient(res);
+      service.addClient(mockRes());
+      service.removeClient(res);
+      expect(service.clientCount).toBe(1);
+    });
+
+    it('does not go below zero on removing unknown client', () => {
+      service.removeClient(mockRes());
+      expect(service.clientCount).toBe(0);
+    });
+  });
+
+  describe('push', () => {
+    it('writes an SSE data line to every connected client', () => {
+      const res1 = mockRes();
+      const res2 = mockRes();
+      service.addClient(res1);
+      service.addClient(res2);
+
+      service.push({ type: 'injury-update', message: 'Player injured', data: { player: 'Judge' } });
+
+      expect(res1.write).toHaveBeenCalledOnce();
+      expect(res2.write).toHaveBeenCalledOnce();
+    });
+
+    it('sends valid SSE format (data: ...\\n\\n)', () => {
+      const res = mockRes();
+      service.addClient(res);
+
+      service.push({ type: 'test-event', message: 'hello', data: {} });
+
+      const written = (res.write as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+      expect(written).toMatch(/^data: /);
+      expect(written).toMatch(/\n\n$/);
+    });
+
+    it('includes type, message, and timestamp in the payload', () => {
+      const res = mockRes();
+      service.addClient(res);
+
+      service.push({ type: 'depth-charts-updated', message: 'Charts refreshed', data: { count: 30 } });
+
+      const written = (res.write as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+      const payload = JSON.parse(written.replace('data: ', '').trim());
+      expect(payload.type).toBe('depth-charts-updated');
+      expect(payload.message).toBe('Charts refreshed');
+      expect(payload.data).toEqual({ count: 30 });
+      expect(payload.timestamp).toBeDefined();
+      expect(new Date(payload.timestamp).getTime()).not.toBeNaN();
+    });
+
+    it('does not throw when there are no connected clients', () => {
+      expect(() =>
+        service.push({ type: 'orphan', message: 'no one listening', data: {} }),
+      ).not.toThrow();
+    });
+
+    it('does not write to removed clients', () => {
+      const res = mockRes();
+      service.addClient(res);
+      service.removeClient(res);
+
+      service.push({ type: 'late-event', message: 'too late', data: {} });
+
+      expect(res.write).not.toHaveBeenCalled();
+    });
+
+    it('only writes to clients connected at push time', () => {
+      const earlyClient = mockRes();
+      service.addClient(earlyClient);
+
+      service.push({ type: 'early', message: 'early push', data: {} });
+
+      const lateClient = mockRes();
+      service.addClient(lateClient);
+
+      expect(earlyClient.write).toHaveBeenCalledOnce();
+      expect(lateClient.write).not.toHaveBeenCalled();
+    });
+  });
+});
