@@ -13,6 +13,7 @@ export interface ValuationMultipliers {
   depthChart: number;
   age: number;
   injury: number;
+  scarcity: number;
 }
 
 export interface PlayerValuation {

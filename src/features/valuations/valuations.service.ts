@@ -35,6 +35,9 @@ type ScoredPlayer = {
   rawZSum: number;
 };
 
+// Positions that can fill a UTIL slot (all hitter positions)
+const UTIL_ELIGIBLE = new Set(['C', '1B', '2B', '3B', 'SS', 'OF', 'DH']);
+
 export class ValuationsService {
   async calculateValuations(leagueId: string, query: ValuationQuery) {
     const league = await LeagueModel.findById(leagueId).lean();
@@ -80,11 +83,14 @@ export class ValuationsService {
       (league.taken_players ?? []).map(([pid]) => String(pid)),
     );
 
+    const scarcityMap = this.buildScarcityMap(allPlayers, league, numTeams);
+
     const hitterValuations = this.scoreToValuations(
       hitterScored,
       hitterBudget,
       league,
       takenPlayerIds,
+      scarcityMap,
       query.teamId,
     );
     const pitcherValuations = this.scoreToValuations(
@@ -92,6 +98,7 @@ export class ValuationsService {
       pitcherBudget,
       league,
       takenPlayerIds,
+      scarcityMap,
       query.teamId,
     );
 
@@ -194,6 +201,7 @@ export class ValuationsService {
     budget: number,
     league: League,
     takenPlayerIds: Set<string>,
+    scarcityMap: Map<string, number>,
     teamId?: string,
   ): PlayerValuation[] {
     const totalPositive = scored.reduce(
@@ -207,8 +215,13 @@ export class ValuationsService {
           ? parseFloat(((rawZSum / totalPositive) * budget).toFixed(2))
           : 1;
 
+      // Scarcity: use the highest scarcity factor among the player's positions
+      const scarcity = Math.max(
+        ...player.positions.map((pos) => scarcityMap.get(pos) ?? 1.0),
+      );
+
       const mult = this.computeMultipliers(player);
-      const adjusted = baseValue * mult.depthChart * mult.age * mult.injury;
+      const adjusted = baseValue * scarcity * mult.depthChart * mult.age * mult.injury;
       const dollarValue = Math.max(1, parseFloat(adjusted.toFixed(2)));
 
       const { draftable, reason } = this.checkDraftability(
@@ -233,9 +246,58 @@ export class ValuationsService {
         dollarValue,
         draftable,
         draftableReason: reason,
-        multipliers: mult,
+        multipliers: { ...mult, scarcity: parseFloat(scarcity.toFixed(3)) },
       };
     });
+  }
+
+  // Builds a per-position scarcity multiplier normalised around 1.0.
+  // Positions where (slots needed / players available) is above average get > 1.0.
+  private buildScarcityMap(
+    players: Player[],
+    league: League,
+    numTeams: number,
+  ): Map<string, number> {
+    const slots = league.rosterSlots as Record<string, number>;
+
+    // Pool size: active players at each position
+    const poolSize: Record<string, number> = {};
+    for (const player of players) {
+      for (const pos of player.positions) {
+        poolSize[pos] = (poolSize[pos] ?? 0) + 1;
+      }
+      // Count UTIL-eligible hitters toward the UTIL pool
+      if (player.playerType === 'hitter' && player.positions.some((p) => UTIL_ELIGIBLE.has(p))) {
+        poolSize['UTIL'] = (poolSize['UTIL'] ?? 0) + 1;
+      }
+    }
+
+    // Demand: roster slots needed across all teams
+    const demand: Record<string, number> = {};
+    for (const [pos, count] of Object.entries(slots)) {
+      if (count > 0) demand[pos] = count * numTeams;
+    }
+
+    // Raw ratio = demand / supply for each position
+    const positions = Object.keys(demand);
+    const ratios: Record<string, number> = {};
+    for (const pos of positions) {
+      const supply = poolSize[pos] ?? 1;
+      ratios[pos] = (demand[pos] ?? 0) / supply;
+    }
+
+    // Normalise so the mean ratio = 1.0
+    const values = Object.values(ratios);
+    const mean = values.reduce((a, b) => a + b, 0) / (values.length || 1);
+
+    const map = new Map<string, number>();
+    for (const pos of positions) {
+      // Clamp between 0.7 and 1.5 to avoid extreme swings
+      const normalised = mean > 0 ? ratios[pos] / mean : 1.0;
+      map.set(pos, Math.min(1.5, Math.max(0.7, normalised)));
+    }
+
+    return map;
   }
 
   private computeMultipliers(player: Player): ValuationMultipliers {
@@ -262,7 +324,7 @@ export class ValuationsService {
     // Injury: active only gets 1.0; any injury status gets 0.2
     const injury = player.injuryStatus === 'active' ? 1.0 : 0.2;
 
-    return { depthChart, age, injury };
+    return { depthChart, age, injury, scarcity: 1.0 };
   }
 
   private checkDraftability(
