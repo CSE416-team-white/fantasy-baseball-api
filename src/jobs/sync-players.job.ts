@@ -43,6 +43,15 @@ interface MLBRosterResponse {
   roster: MLBRosterEntry[];
 }
 
+interface MLBStatSplit {
+  season: string;
+  stat: Record<string, unknown>;
+}
+
+interface MLBStatsResponse {
+  stats: Array<{ splits: MLBStatSplit[] }>;
+}
+
 interface MLBFieldingStats {
   stats: Array<{
     splits: Array<{
@@ -126,6 +135,54 @@ async function getFieldingPositions(playerId: number): Promise<PlayerPosition[]>
   }
 }
 
+// Fetches up to 3 seasons of hitting or pitching stats from the MLB API
+async function getPlayerHistoricalStats(
+  playerId: number,
+  isPitcher: boolean,
+): Promise<PlayerInput['stats']> {
+  const group = isPitcher ? 'pitching' : 'hitting';
+  try {
+    const data = await fetchJSON<MLBStatsResponse>(
+      `${MLB_API_BASE}/people/${playerId}/stats?stats=yearByYear&group=${group}&sportId=1`,
+    );
+    const splits = data.stats[0]?.splits ?? [];
+    const currentYear = new Date().getFullYear();
+
+    // Take the 3 most recent completed seasons
+    const recent = splits
+      .filter((s) => Number(s.season) < currentYear)
+      .slice(-3);
+
+    if (isPitcher) {
+      return recent.map((s) => ({
+        season: s.season,
+        type: 'pitcher' as const,
+        data: {
+          era: Number(s.stat['era']) || undefined,
+          wins: Number(s.stat['wins']) || undefined,
+          losses: Number(s.stat['losses']) || undefined,
+          saves: Number(s.stat['saves']) || undefined,
+          strikeouts: Number(s.stat['strikeOuts']) || undefined,
+          innings: parseFloat(String(s.stat['inningsPitched'] ?? '')) || undefined,
+        },
+      }));
+    }
+    return recent.map((s) => ({
+      season: s.season,
+      type: 'hitter' as const,
+      data: {
+        ba: Number(s.stat['avg']) || undefined,
+        hr: Number(s.stat['homeRuns']) || undefined,
+        rbi: Number(s.stat['rbi']) || undefined,
+        walk: Number(s.stat['baseOnBalls']) || undefined,
+        sb: Number(s.stat['stolenBases']) || undefined,
+      },
+    }));
+  } catch {
+    return [];
+  }
+}
+
 async function buildPositions(
   playerId: number,
   rosterAbbr: string,
@@ -203,6 +260,9 @@ async function fetchAllMLBPlayers(): Promise<PlayerInput[]> {
         const playerType: 'hitter' | 'pitcher' = isPitcher ? 'pitcher' : 'hitter';
         const injuryStatus = mapInjuryStatus(entry.status.code);
 
+        const stats = await getPlayerHistoricalStats(player.id, isPitcher);
+        await new Promise((r) => setTimeout(r, 50));
+
         const base = {
           externalId: `mlb-${player.id}`,
           name: player.fullName,
@@ -217,6 +277,7 @@ async function fetchAllMLBPlayers(): Promise<PlayerInput[]> {
           weight: playerDetails?.weight,
           mlbDebutDate: playerDetails?.mlbDebutDate,
           active: playerDetails?.active ?? true,
+          stats,
         };
 
         const playerInput: PlayerInput =
