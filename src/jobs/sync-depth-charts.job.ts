@@ -98,10 +98,16 @@ async function fetchTeamDepthChart(
 
   const positionsMap = data.depthchart[0]?.positions ?? {};
 
-  // Track each player's best (lowest) rank across all positions they appear in.
-  // A player like Aaron Judge may appear at rank 3 in one slot before rank 1 in RF —
-  // we want rank 1 so he's correctly marked as a starter.
-  const bestRank = new Map<string, number>();
+  // Maps ESPN lowercase slot key → the position override to store in our DB
+  const ESPN_PITCHER_POSITION_MAP: Record<string, string[]> = {
+    sp: ['SP'],
+    rp: ['RP'],
+    cl: ['RP'], // closer is a reliever
+  };
+
+  // Track each player's best (lowest) rank AND the slot that produced it.
+  // We use the slot to determine SP vs RP for pitchers.
+  const bestEntry = new Map<string, { rank: number; posKey: string }>();
 
   for (const [posKey, posEntry] of Object.entries(positionsMap)) {
     if (SKIP_ESPN_POSITIONS.has(posKey)) continue;
@@ -109,19 +115,20 @@ async function fetchTeamDepthChart(
     posEntry.athletes.forEach((athlete, index) => {
       const name = athlete.displayName;
       const rank = index + 1;
-      const existing = bestRank.get(name);
-      if (existing === undefined || rank < existing) {
-        bestRank.set(name, rank);
+      const existing = bestEntry.get(name);
+      if (existing === undefined || rank < existing.rank) {
+        bestEntry.set(name, { rank, posKey });
       }
     });
   }
 
   const updates: DepthChartUpdate[] = [];
-  for (const [name, rank] of bestRank) {
+  for (const [name, { rank, posKey }] of bestEntry) {
     updates.push({
       name,
       depthChartStatus: rankToDepthChartStatus(rank),
       depthChartOrder: rank,
+      positionOverride: ESPN_PITCHER_POSITION_MAP[posKey], // only set for sp/rp/cl slots
     });
   }
 
@@ -159,6 +166,8 @@ async function syncAllDepthCharts(): Promise<void> {
     `Depth chart sync complete. Total players updated: ${totalUpdated}`,
   );
 }
+
+export { syncAllDepthCharts as syncAllDepthChartsForScript };
 
 export function defineDepthChartSyncJob() {
   const agenda = getAgenda();
