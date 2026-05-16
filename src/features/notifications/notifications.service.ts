@@ -7,7 +7,7 @@ export interface NotificationEvent {
   timestamp: string;
 }
 
-class NotificationsService {
+export class NotificationsService {
   private clients = new Set<Response>();
 
   addClient(res: Response): void {
