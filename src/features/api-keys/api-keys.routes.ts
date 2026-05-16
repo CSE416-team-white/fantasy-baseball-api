@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
+import { z } from 'zod';
 import { asyncHandler } from '@/shared/middlewares/async-handler.js';
 import { sendSuccess } from '@/shared/utils/response.js';
 import { ApiError } from '@/shared/utils/api-error.js';
@@ -78,14 +79,47 @@ router.get(
   '/me',
   asyncHandler(async (req: Request, res: Response) => {
     if (!req.apiClient) {
-      throw new ApiError(
-        HTTP_STATUS.UNAUTHORIZED,
-        'Missing API client context',
-      );
+      throw new ApiError(HTTP_STATUS.UNAUTHORIZED, 'Missing API client context');
     }
-
     const apiKey = await apiKeysService.getServiceById(req.apiClient.keyId);
     sendSuccess(res, apiKey);
+  }),
+);
+
+/**
+ * @swagger
+ * /api/api-keys/allowed-ips:
+ *   put:
+ *     summary: Set IP whitelist for your API key
+ *     description: Replaces the allowed IP list. Send an empty array to allow all IPs.
+ *     tags: [API Keys]
+ *     security:
+ *       - ApiKeyAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [allowedIPs]
+ *             properties:
+ *               allowedIPs:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 example: ["203.0.113.42", "198.51.100.7"]
+ */
+router.put(
+  '/allowed-ips',
+  asyncHandler(async (req: Request, res: Response) => {
+    if (!req.apiClient) {
+      throw new ApiError(HTTP_STATUS.UNAUTHORIZED, 'Missing API client context');
+    }
+    const { allowedIPs } = z
+      .object({ allowedIPs: z.array(z.string().ip()) })
+      .parse(req.body);
+    const updated = await apiKeysService.updateAllowedIPs(req.apiClient.serviceName, allowedIPs);
+    sendSuccess(res, updated);
   }),
 );
 

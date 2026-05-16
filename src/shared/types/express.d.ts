@@ -7,6 +7,7 @@ declare namespace Express {
       keyId: string;
       serviceName: string;
       status: 'active' | 'inactive';
+      allowedIPs: string[];
     };
   }
 }
