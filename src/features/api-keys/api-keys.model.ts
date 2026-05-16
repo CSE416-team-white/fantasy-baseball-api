@@ -27,6 +27,10 @@ const serviceApiKeySchema = new Schema<ServiceApiKey>(
       default: 'active',
       required: true,
     },
+    allowedIPs: {
+      type: [String],
+      default: [],
+    },
   },
   {
     timestamps: true,

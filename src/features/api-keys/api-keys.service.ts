@@ -186,6 +186,7 @@ export class ApiKeysService {
       keyId: apiKey._id.toString(),
       serviceName: apiKey.serviceName,
       status: apiKey.status,
+      allowedIPs: apiKey.allowedIPs ?? [],
     };
   }
 

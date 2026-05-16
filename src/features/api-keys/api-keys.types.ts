@@ -17,6 +17,7 @@ export const ApiKeyClientSchema = z.object({
   keyId: z.string(),
   serviceName: ServiceNameSchema,
   status: ApiKeyStatusSchema,
+  allowedIPs: z.array(z.string()).default([]),
 });
 
 export const ApiKeyPublicSchema = z.object({
@@ -38,6 +39,7 @@ export interface ServiceApiKey {
   keyHash: string;
   keyPrefix: string;
   status: ApiKeyStatus;
+  allowedIPs: string[];
   createdAt: Date;
   updatedAt: Date;
 }
