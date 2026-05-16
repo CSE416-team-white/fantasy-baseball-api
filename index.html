@@ -347,6 +347,53 @@
       color: var(--red);
     }
 
+    /* ── MANAGE ── */
+    .manage-section { background: var(--white); }
+    .manage-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 700px) { .manage-grid { grid-template-columns: 1fr; } }
+    .manage-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 2rem;
+    }
+    .manage-card h3 { font-size: 1rem; font-weight: 800; margin-bottom: 0.3rem; }
+    .manage-card .sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 1.25rem; }
+    textarea {
+      width: 100%;
+      padding: 0.65rem 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      resize: vertical;
+      outline: none;
+      color: var(--text);
+      transition: border-color 0.15s;
+    }
+    textarea:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(22,163,74,0.1); }
+    .manage-result {
+      display: none;
+      margin-top: 1rem;
+      padding: 0.85rem;
+      border-radius: 8px;
+      font-size: 0.83rem;
+    }
+    .manage-result.success {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+    }
+    .manage-result.error {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: var(--red);
+    }
+    .info-row { display: flex; justify-content: space-between; font-size: 0.85rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border); }
+    .info-row:last-child { border-bottom: none; }
+    .info-row .key { color: var(--muted); }
+    .info-row .val { font-weight: 600; }
+
     /* ── LICENSE ── */
     .license-section { background: var(--white); }
     .license-card {
@@ -412,6 +459,7 @@
   <div class="nav-links">
     <a href="https://fantasy-baseball-api.onrender.com/api-docs" target="_blank">Docs</a>
     <a href="#features">Features</a>
+    <a href="#manage">Manage Key</a>
     <a href="#get-started" class="btn-nav">Get API Key</a>
   </div>
 </nav>
@@ -580,6 +628,41 @@ curl "https://fantasy-baseball-api.onrender.com/api/valuations/<span class="t-st
   </div>
 </section>
 
+<!-- MANAGE -->
+<section class="manage-section" id="manage">
+  <div class="container">
+    <div class="section-label">Account</div>
+    <h2 class="section-title">Manage your API key</h2>
+    <p class="section-sub">View your key details or restrict access to specific IP addresses.</p>
+
+    <div class="manage-grid">
+
+      <!-- Key Info -->
+      <div class="manage-card">
+        <h3>Key info</h3>
+        <p class="sub">Paste your API key to see your account details and current status.</p>
+        <label for="infoKey">Your API key</label>
+        <input type="text" id="infoKey" placeholder="my-app_..." autocomplete="off" spellcheck="false" style="margin-bottom:1rem;" />
+        <button class="btn-submit" onclick="lookupKey()" style="margin-top:0;">Look up</button>
+        <div class="manage-result" id="infoResult"></div>
+      </div>
+
+      <!-- IP Whitelist -->
+      <div class="manage-card">
+        <h3>IP whitelist</h3>
+        <p class="sub">Restrict your key to specific IPs. One IP per line. Leave blank to allow all IPs.</p>
+        <label for="ipKey">Your API key</label>
+        <input type="text" id="ipKey" placeholder="my-app_..." autocomplete="off" spellcheck="false" style="margin-bottom:0.75rem;" />
+        <label for="ipList">Allowed IP addresses</label>
+        <textarea id="ipList" rows="4" placeholder="203.0.113.42&#10;198.51.100.7"></textarea>
+        <button class="btn-submit" onclick="updateIPs()" style="margin-top:1rem;">Save whitelist</button>
+        <div class="manage-result" id="ipResult"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 <!-- LICENSE -->
 <section class="license-section" id="license">
   <div class="container">
@@ -728,6 +811,66 @@ curl "https://fantasy-baseball-api.onrender.com/api/valuations/<span class="t-st
   document.getElementById('serviceName').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') registerKey();
   });
+
+  async function lookupKey() {
+    const key = document.getElementById('infoKey').value.trim();
+    const resultEl = document.getElementById('infoResult');
+    resultEl.className = 'manage-result';
+    resultEl.style.display = 'none';
+
+    if (!key) { showManageResult('infoResult', 'error', 'Paste your API key above.'); return; }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/api-keys/me`, {
+        headers: { 'x-api-key': key },
+      });
+      const json = await res.json();
+      if (!res.ok) { showManageResult('infoResult', 'error', json.message ?? 'Invalid key.'); return; }
+      const d = json.data;
+      showManageResult('infoResult', 'success', `
+        <div class="info-row"><span class="key">Service name</span><span class="val">${d.serviceName}</span></div>
+        <div class="info-row"><span class="key">Status</span><span class="val">${d.status}</span></div>
+        <div class="info-row"><span class="key">Key prefix</span><span class="val">${d.keyPrefix}…</span></div>
+        <div class="info-row"><span class="key">Created</span><span class="val">${new Date(d.createdAt).toLocaleDateString()}</span></div>
+      `);
+    } catch {
+      showManageResult('infoResult', 'error', 'Could not reach the API.');
+    }
+  }
+
+  async function updateIPs() {
+    const key = document.getElementById('ipKey').value.trim();
+    const raw = document.getElementById('ipList').value.trim();
+    const resultEl = document.getElementById('ipResult');
+    resultEl.style.display = 'none';
+
+    if (!key) { showManageResult('ipResult', 'error', 'Paste your API key above.'); return; }
+
+    const allowedIPs = raw ? raw.split('\n').map(s => s.trim()).filter(Boolean) : [];
+
+    try {
+      const res = await fetch(`${API_BASE}/api/api-keys/allowed-ips`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': key },
+        body: JSON.stringify({ allowedIPs }),
+      });
+      const json = await res.json();
+      if (!res.ok) { showManageResult('ipResult', 'error', json.message ?? 'Failed to update.'); return; }
+      const msg = allowedIPs.length === 0
+        ? '✓ Whitelist cleared — all IPs are now allowed.'
+        : `✓ Whitelist updated — ${allowedIPs.length} IP${allowedIPs.length > 1 ? 's' : ''} saved.`;
+      showManageResult('ipResult', 'success', msg);
+    } catch {
+      showManageResult('ipResult', 'error', 'Could not reach the API.');
+    }
+  }
+
+  function showManageResult(id, type, html) {
+    const el = document.getElementById(id);
+    el.className = `manage-result ${type}`;
+    el.innerHTML = html;
+    el.style.display = 'block';
+  }
 </script>
 
 </body>
