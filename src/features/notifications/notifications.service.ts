@@ -7,6 +7,13 @@ export interface NotificationEvent {
   timestamp: string;
 }
 
+export type NotificationArchiveResult = {
+  archived: boolean;
+  archivedCount: number;
+  status?: number;
+  message?: string;
+};
+
 export class NotificationsService {
   private clients = new Set<Response>();
 
@@ -18,12 +25,18 @@ export class NotificationsService {
     return process.env.NOTIFICATION_ARCHIVE_API_KEY?.trim() || null;
   }
 
-  private async archiveNotification(payload: NotificationEvent): Promise<void> {
+  private async archiveNotification(
+    payload: NotificationEvent,
+  ): Promise<NotificationArchiveResult> {
     const archiveUrl = this.getArchiveUrl();
     const archiveApiKey = this.getArchiveApiKey();
 
     if (!archiveUrl || !archiveApiKey) {
-      return;
+      return {
+        archived: false,
+        archivedCount: 0,
+        message: 'Notification archive is not configured',
+      };
     }
 
     try {
@@ -38,12 +51,41 @@ export class NotificationsService {
 
       if (!response.ok) {
         const errorText = (await response.text()).trim();
-        console.error(
-          `[notifications] archive failed with ${response.status}: ${errorText || 'unknown error'}`,
-        );
+        const message =
+          errorText || `Archive request failed with status ${response.status}`;
+        console.error(`[notifications] archive failed: ${message}`);
+        return {
+          archived: false,
+          archivedCount: 0,
+          status: response.status,
+          message,
+        };
       }
+
+      const responseData = (await response.json()) as {
+        data?: { archivedCount?: number };
+        message?: string;
+      };
+      const archivedCount = responseData.data?.archivedCount ?? 0;
+
+      return {
+        archived: archivedCount > 0,
+        archivedCount,
+        message:
+          archivedCount > 0
+            ? undefined
+            : (responseData.message ??
+              'Notification archive completed, but no user records were available'),
+      };
     } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Archive request failed';
       console.error('[notifications] archive request failed', error);
+      return {
+        archived: false,
+        archivedCount: 0,
+        message,
+      };
     }
   }
 
@@ -55,7 +97,9 @@ export class NotificationsService {
     this.clients.delete(res);
   }
 
-  push(event: Omit<NotificationEvent, 'timestamp'>): void {
+  async push(
+    event: Omit<NotificationEvent, 'timestamp'>,
+  ): Promise<NotificationArchiveResult> {
     const payload: NotificationEvent = {
       ...event,
       timestamp: new Date().toISOString(),
@@ -64,10 +108,11 @@ export class NotificationsService {
     for (const client of this.clients) {
       client.write(sseMessage);
     }
-    void this.archiveNotification(payload);
+    const archiveResult = await this.archiveNotification(payload);
     console.log(
       `[notifications] pushed "${event.type}" to ${this.clients.size} client(s)`,
     );
+    return archiveResult;
   }
 
   schedulePush(
@@ -75,7 +120,7 @@ export class NotificationsService {
     delayMs: number,
   ): NodeJS.Timeout {
     return setTimeout(() => {
-      this.push(event);
+      void this.push(event);
     }, delayMs);
   }
 
