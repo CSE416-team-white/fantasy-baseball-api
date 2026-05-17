@@ -27,7 +27,18 @@ export class NotificationsService {
     for (const client of this.clients) {
       client.write(sseMessage);
     }
-    console.log(`[notifications] pushed "${event.type}" to ${this.clients.size} client(s)`);
+    console.log(
+      `[notifications] pushed "${event.type}" to ${this.clients.size} client(s)`,
+    );
+  }
+
+  schedulePush(
+    event: Omit<NotificationEvent, 'timestamp'>,
+    delayMs: number,
+  ): NodeJS.Timeout {
+    return setTimeout(() => {
+      this.push(event);
+    }, delayMs);
   }
 
   get clientCount(): number {
