@@ -27,32 +27,29 @@ const router = Router();
  *             schema:
  *               type: string
  */
-router.get(
-  '/events',
-  (req: Request, res: Response) => {
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    res.setHeader('X-Accel-Buffering', 'no'); // disable Nginx buffering on Render
+router.get('/events', (req: Request, res: Response) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no'); // disable Nginx buffering on Render
 
-    // Send an immediate connected event so the client knows the stream is live
-    res.write(
-      `data: ${JSON.stringify({ type: 'connected', message: 'SSE stream open', timestamp: new Date().toISOString() })}\n\n`,
-    );
+  // Send an immediate connected event so the client knows the stream is live
+  res.write(
+    `data: ${JSON.stringify({ type: 'connected', message: 'SSE stream open', timestamp: new Date().toISOString() })}\n\n`,
+  );
 
-    notificationsService.addClient(res);
+  notificationsService.addClient(res);
 
-    // Keep-alive ping every 30 s to prevent proxy timeouts
-    const keepAlive = setInterval(() => {
-      res.write(': ping\n\n');
-    }, 30_000);
+  // Keep-alive ping every 30 s to prevent proxy timeouts
+  const keepAlive = setInterval(() => {
+    res.write(': ping\n\n');
+  }, 30_000);
 
-    req.on('close', () => {
-      clearInterval(keepAlive);
-      notificationsService.removeClient(res);
-    });
-  },
-);
+  req.on('close', () => {
+    clearInterval(keepAlive);
+    notificationsService.removeClient(res);
+  });
+});
 
 /**
  * @swagger
@@ -105,6 +102,68 @@ router.post(
 
     sendSuccess(res, {
       pushed: true,
+      clients: notificationsService.clientCount,
+      type: body.type,
+    });
+  }),
+);
+
+/**
+ * @swagger
+ * /api/notifications/schedule:
+ *   post:
+ *     summary: Schedule a global notification broadcast after a delay
+ *     description: >
+ *       Schedules a one-shot notification that is broadcast to every connected SSE
+ *       client when the timer fires.
+ *     tags: [Notifications]
+ *     security:
+ *       - ApiKeyAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [type, message]
+ *             properties:
+ *               type:
+ *                 type: string
+ *                 example: timer-test
+ *               message:
+ *                 type: string
+ *                 example: Button timer 10 sec
+ *               delayMs:
+ *                 type: integer
+ *                 example: 10000
+ *                 minimum: 0
+ *               data:
+ *                 type: object
+ */
+router.post(
+  '/notifications/schedule',
+  asyncHandler(async (req: Request, res: Response) => {
+    const body = z
+      .object({
+        type: z.string().min(1),
+        message: z.string().min(1),
+        delayMs: z.number().int().min(0).max(60_000).default(10_000),
+        data: z.record(z.unknown()).optional().default({}),
+      })
+      .parse(req.body);
+
+    notificationsService.schedulePush(
+      {
+        type: body.type,
+        message: body.message,
+        data: body.data as Record<string, unknown>,
+      },
+      body.delayMs,
+    );
+
+    sendSuccess(res, {
+      scheduled: true,
+      delayMs: body.delayMs,
       clients: notificationsService.clientCount,
       type: body.type,
     });
