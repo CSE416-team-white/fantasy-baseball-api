@@ -45,10 +45,15 @@ const ESPN_TEAM_MAP: Record<number, string> = {
 };
 
 /**
- * ESPN position keys (lowercase) to ignore — 'p' is the generic "pitcher"
- * bucket which duplicates SP/RP entries; we use the specific positions instead.
+ * Maps ESPN lowercase slot key → the position override stored in our DB.
+ * 'p' (generic pitcher) is handled separately in the two-pass logic below.
  */
-const SKIP_ESPN_POSITIONS = new Set(['p']);
+const ESPN_PITCHER_POSITION_MAP: Record<string, string[]> = {
+  sp: ['SP'],
+  rp: ['RP'],
+  cl: ['RP'],
+  p: ['SP'], // fallback for teams that use 'p' instead of 'sp'
+};
 
 interface ESPNAthlete {
   id: string;
@@ -98,20 +103,16 @@ async function fetchTeamDepthChart(
 
   const positionsMap = data.depthchart[0]?.positions ?? {};
 
-  // Maps ESPN lowercase slot key → the position override to store in our DB
-  const ESPN_PITCHER_POSITION_MAP: Record<string, string[]> = {
-    sp: ['SP'],
-    rp: ['RP'],
-    cl: ['RP'], // closer is a reliever
-  };
-
   // Track each player's best (lowest) rank AND the slot that produced it.
-  // We use the slot to determine SP vs RP for pitchers.
+  // Two-pass approach: specific positions (sp/rp/cl and field slots) first,
+  // then generic 'p' bucket only for athletes not already placed.
+  // This handles teams that use 'p' instead of 'sp' (e.g. PIT) while
+  // avoiding duplicates on teams that have both 'p' and 'sp'.
   const bestEntry = new Map<string, { rank: number; posKey: string }>();
 
+  // Pass 1: everything except the generic 'p' bucket
   for (const [posKey, posEntry] of Object.entries(positionsMap)) {
-    if (SKIP_ESPN_POSITIONS.has(posKey)) continue;
-
+    if (posKey === 'p') continue;
     posEntry.athletes.forEach((athlete, index) => {
       const name = athlete.displayName;
       const rank = index + 1;
@@ -122,13 +123,23 @@ async function fetchTeamDepthChart(
     });
   }
 
+  // Pass 2: generic 'p' bucket — only add pitchers not already captured above
+  const genericPitcherEntry = positionsMap['p'];
+  if (genericPitcherEntry) {
+    genericPitcherEntry.athletes.forEach((athlete, index) => {
+      if (!bestEntry.has(athlete.displayName)) {
+        bestEntry.set(athlete.displayName, { rank: index + 1, posKey: 'p' });
+      }
+    });
+  }
+
   const updates: DepthChartUpdate[] = [];
   for (const [name, { rank, posKey }] of bestEntry) {
     updates.push({
       name,
       depthChartStatus: rankToDepthChartStatus(rank),
       depthChartOrder: rank,
-      positionOverride: ESPN_PITCHER_POSITION_MAP[posKey], // only set for sp/rp/cl slots
+      positionOverride: ESPN_PITCHER_POSITION_MAP[posKey],
     });
   }
 
