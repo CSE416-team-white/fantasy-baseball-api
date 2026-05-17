@@ -1,5 +1,11 @@
 import mongoose, { Schema } from 'mongoose';
-import type { League } from './leagues.types.js';
+import {
+  BATTING_CATEGORIES,
+  DRAFT_TYPES,
+  LEAGUE_FORMATS,
+  PITCHING_CATEGORIES,
+  type League,
+} from './leagues.types.js';
 
 function isValidTakenPlayers(value: unknown): boolean {
   if (!Array.isArray(value)) return false;
@@ -69,50 +75,22 @@ const leagueSchema = new Schema<League>(
     format: {
       type: String,
       required: true,
-      enum: ['roto', 'h2h-points', 'h2h-category'],
+      enum: LEAGUE_FORMATS,
     },
     draftType: {
       type: String,
       required: true,
-      enum: ['auction', 'snake'],
+      enum: DRAFT_TYPES,
     },
     battingCategories: {
       type: [String],
       required: true,
-      enum: [
-        'R',
-        'HR',
-        'RBI',
-        'SB',
-        'AVG',
-        'OBP',
-        'SLG',
-        'OPS',
-        'H',
-        '2B',
-        '3B',
-        'BB',
-        'K',
-      ],
+      enum: BATTING_CATEGORIES,
     },
     pitchingCategories: {
       type: [String],
       required: true,
-      enum: [
-        'W',
-        'SV',
-        'K',
-        'ERA',
-        'WHIP',
-        'QS',
-        'IP',
-        'H',
-        'BB',
-        'HR',
-        'L',
-        'HLD',
-        'SV+HLD',
-      ],
+      enum: PITCHING_CATEGORIES,
     },
     rosterSlots: {
       C: { type: Number, default: 1 },
