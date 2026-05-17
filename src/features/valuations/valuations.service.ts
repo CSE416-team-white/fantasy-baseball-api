@@ -302,17 +302,32 @@ export class ValuationsService {
   }
 
   private computeMultipliers(player: Player): ValuationMultipliers {
-    // Depth chart order 1 = starter slot, 2 = backup, else = reserve/unknown
     let depthChart: number;
-    if (player.depthChartOrder === 1 || player.depthChartStatus === 'starter') {
-      depthChart = 1.5;
-    } else if (
-      player.depthChartOrder === 2 ||
-      player.depthChartStatus === 'backup'
-    ) {
-      depthChart = 1.0;
+
+    if (player.playerType === 'pitcher') {
+      // Pitcher rotation/bullpen tiers requested by league:
+      // 1-3 essentially equal, 4 a little less, 5 even less, 6+ almost worthless
+      const order = player.depthChartOrder;
+      if (!order) {
+        depthChart = 0.85; // unknown — conservative default
+      } else if (order <= 3) {
+        depthChart = 1.0;
+      } else if (order === 4) {
+        depthChart = 0.75;
+      } else if (order === 5) {
+        depthChart = 0.5;
+      } else {
+        depthChart = 0.15; // 6+ — long men / spot starters, nearly worthless
+      }
     } else {
-      depthChart = 0.85;
+      // Hitters: starter slot → 1.5x, backup → 1.0x, bench/unknown → 0.85x
+      if (player.depthChartOrder === 1 || player.depthChartStatus === 'starter') {
+        depthChart = 1.5;
+      } else if (player.depthChartOrder === 2 || player.depthChartStatus === 'backup') {
+        depthChart = 1.0;
+      } else {
+        depthChart = 0.85;
+      }
     }
 
     // Age brackets from diagram: 18-25 → 1.5, 26-34 → 1.0, 35+ → 0.85
