@@ -14,6 +14,22 @@ export type NotificationArchiveResult = {
   message?: string;
 };
 
+function stripSource(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(stripSource);
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .filter(([key]) => key !== 'source')
+        .map(([key, nestedValue]) => [key, stripSource(nestedValue)]),
+    );
+  }
+
+  return value;
+}
+
 export class NotificationsService {
   private clients = new Set<Response>();
 
@@ -100,8 +116,12 @@ export class NotificationsService {
   async push(
     event: Omit<NotificationEvent, 'timestamp'>,
   ): Promise<NotificationArchiveResult> {
-    const payload: NotificationEvent = {
+    const sanitizedEvent: Omit<NotificationEvent, 'timestamp'> = {
       ...event,
+      data: (stripSource(event.data) ?? {}) as Record<string, unknown>,
+    };
+    const payload: NotificationEvent = {
+      ...sanitizedEvent,
       timestamp: new Date().toISOString(),
     };
     const sseMessage = `data: ${JSON.stringify(payload)}\n\n`;
