@@ -2,7 +2,6 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '@/shared/middlewares/async-handler.js';
-import { sendSuccess } from '@/shared/utils/response.js';
 import { notificationsService } from './notifications.service.js';
 
 const router = Router();
@@ -94,16 +93,20 @@ router.post(
       })
       .parse(req.body);
 
-    notificationsService.push({
+    const archiveResult = await notificationsService.push({
       type: body.type,
       message: body.message,
       data: body.data as Record<string, unknown>,
     });
 
-    sendSuccess(res, {
-      pushed: true,
-      clients: notificationsService.clientCount,
-      type: body.type,
+    res.json({
+      success: true,
+      data: {
+        pushed: true,
+        clients: notificationsService.clientCount,
+        type: body.type,
+        archive: archiveResult,
+      },
     });
   }),
 );
@@ -161,11 +164,14 @@ router.post(
       body.delayMs,
     );
 
-    sendSuccess(res, {
-      scheduled: true,
-      delayMs: body.delayMs,
-      clients: notificationsService.clientCount,
-      type: body.type,
+    res.json({
+      success: true,
+      data: {
+        scheduled: true,
+        delayMs: body.delayMs,
+        clients: notificationsService.clientCount,
+        type: body.type,
+      },
     });
   }),
 );

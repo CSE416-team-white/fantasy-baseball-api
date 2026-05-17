@@ -42,13 +42,13 @@ describe('NotificationsService', () => {
   });
 
   describe('push', () => {
-    it('writes an SSE data line to every connected client', () => {
+    it('writes an SSE data line to every connected client', async () => {
       const res1 = mockRes();
       const res2 = mockRes();
       service.addClient(res1);
       service.addClient(res2);
 
-      service.push({
+      await service.push({
         type: 'injury-update',
         message: 'Player injured',
         data: { player: 'Judge' },
@@ -58,11 +58,11 @@ describe('NotificationsService', () => {
       expect(res2.write).toHaveBeenCalledOnce();
     });
 
-    it('sends valid SSE format (data: ...\\n\\n)', () => {
+    it('sends valid SSE format (data: ...\\n\\n)', async () => {
       const res = mockRes();
       service.addClient(res);
 
-      service.push({ type: 'test-event', message: 'hello', data: {} });
+      await service.push({ type: 'test-event', message: 'hello', data: {} });
 
       const written = (res.write as ReturnType<typeof vi.fn>).mock
         .calls[0][0] as string;
@@ -70,11 +70,11 @@ describe('NotificationsService', () => {
       expect(written).toMatch(/\n\n$/);
     });
 
-    it('includes type, message, and timestamp in the payload', () => {
+    it('includes type, message, and timestamp in the payload', async () => {
       const res = mockRes();
       service.addClient(res);
 
-      service.push({
+      await service.push({
         type: 'depth-charts-updated',
         message: 'Charts refreshed',
         data: { count: 30 },
@@ -90,27 +90,27 @@ describe('NotificationsService', () => {
       expect(new Date(payload.timestamp).getTime()).not.toBeNaN();
     });
 
-    it('does not throw when there are no connected clients', () => {
-      expect(() =>
+    it('does not throw when there are no connected clients', async () => {
+      await expect(
         service.push({ type: 'orphan', message: 'no one listening', data: {} }),
-      ).not.toThrow();
+      ).resolves.toMatchObject({ archived: false, archivedCount: 0 });
     });
 
-    it('does not write to removed clients', () => {
+    it('does not write to removed clients', async () => {
       const res = mockRes();
       service.addClient(res);
       service.removeClient(res);
 
-      service.push({ type: 'late-event', message: 'too late', data: {} });
+      await service.push({ type: 'late-event', message: 'too late', data: {} });
 
       expect(res.write).not.toHaveBeenCalled();
     });
 
-    it('only writes to clients connected at push time', () => {
+    it('only writes to clients connected at push time', async () => {
       const earlyClient = mockRes();
       service.addClient(earlyClient);
 
-      service.push({ type: 'early', message: 'early push', data: {} });
+      await service.push({ type: 'early', message: 'early push', data: {} });
 
       const lateClient = mockRes();
       service.addClient(lateClient);
@@ -127,18 +127,20 @@ describe('NotificationsService', () => {
       const fetchSpy = vi
         .spyOn(global, 'fetch')
         .mockResolvedValue(
-          new Response(JSON.stringify({ success: true }), { status: 201 }),
+          new Response(
+            JSON.stringify({ success: true, data: { archivedCount: 2 } }),
+            { status: 201 },
+          ),
         );
 
-      service.push({
+      const result = await service.push({
         type: 'test-event',
         message: 'archive this',
         data: { source: 'unit-test' },
       });
 
-      await Promise.resolve();
-
       expect(fetchSpy).toHaveBeenCalledOnce();
+      expect(result.archived).toBe(true);
       expect(fetchSpy).toHaveBeenCalledWith(
         'https://draft-kit-backend.example.com/api/system/notifications/archive',
         expect.objectContaining({
