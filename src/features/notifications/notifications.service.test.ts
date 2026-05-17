@@ -11,6 +11,9 @@ describe('NotificationsService', () => {
 
   beforeEach(() => {
     service = new NotificationsService();
+    delete process.env.NOTIFICATION_ARCHIVE_URL;
+    delete process.env.NOTIFICATION_ARCHIVE_API_KEY;
+    vi.restoreAllMocks();
   });
 
   describe('clientCount', () => {
@@ -45,7 +48,11 @@ describe('NotificationsService', () => {
       service.addClient(res1);
       service.addClient(res2);
 
-      service.push({ type: 'injury-update', message: 'Player injured', data: { player: 'Judge' } });
+      service.push({
+        type: 'injury-update',
+        message: 'Player injured',
+        data: { player: 'Judge' },
+      });
 
       expect(res1.write).toHaveBeenCalledOnce();
       expect(res2.write).toHaveBeenCalledOnce();
@@ -57,7 +64,8 @@ describe('NotificationsService', () => {
 
       service.push({ type: 'test-event', message: 'hello', data: {} });
 
-      const written = (res.write as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+      const written = (res.write as ReturnType<typeof vi.fn>).mock
+        .calls[0][0] as string;
       expect(written).toMatch(/^data: /);
       expect(written).toMatch(/\n\n$/);
     });
@@ -66,9 +74,14 @@ describe('NotificationsService', () => {
       const res = mockRes();
       service.addClient(res);
 
-      service.push({ type: 'depth-charts-updated', message: 'Charts refreshed', data: { count: 30 } });
+      service.push({
+        type: 'depth-charts-updated',
+        message: 'Charts refreshed',
+        data: { count: 30 },
+      });
 
-      const written = (res.write as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+      const written = (res.write as ReturnType<typeof vi.fn>).mock
+        .calls[0][0] as string;
       const payload = JSON.parse(written.replace('data: ', '').trim());
       expect(payload.type).toBe('depth-charts-updated');
       expect(payload.message).toBe('Charts refreshed');
@@ -104,6 +117,38 @@ describe('NotificationsService', () => {
 
       expect(earlyClient.write).toHaveBeenCalledOnce();
       expect(lateClient.write).not.toHaveBeenCalled();
+    });
+
+    it('archives pushed notifications when archive env vars are configured', async () => {
+      process.env.NOTIFICATION_ARCHIVE_URL =
+        'https://draft-kit-backend.example.com/api/system/notifications/archive';
+      process.env.NOTIFICATION_ARCHIVE_API_KEY = 'archive-key';
+
+      const fetchSpy = vi
+        .spyOn(global, 'fetch')
+        .mockResolvedValue(
+          new Response(JSON.stringify({ success: true }), { status: 201 }),
+        );
+
+      service.push({
+        type: 'test-event',
+        message: 'archive this',
+        data: { source: 'unit-test' },
+      });
+
+      await Promise.resolve();
+
+      expect(fetchSpy).toHaveBeenCalledOnce();
+      expect(fetchSpy).toHaveBeenCalledWith(
+        'https://draft-kit-backend.example.com/api/system/notifications/archive',
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.objectContaining({
+            'Content-Type': 'application/json',
+            'x-api-key': 'archive-key',
+          }),
+        }),
+      );
     });
   });
 });
