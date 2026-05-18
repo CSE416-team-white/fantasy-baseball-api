@@ -1,11 +1,25 @@
 import { getAgenda } from '../loaders/agenda.js';
+import { PlayerModel } from '../features/players/players.model.js';
 import { playersService } from '../features/players/players.service.js';
 import type { DepthChartUpdate } from '../features/players/players.service.js';
-import type { DepthChartStatus } from '../features/players/players.types.js';
+import type {
+  DepthChartStatus,
+  Player,
+} from '../features/players/players.types.js';
 import { notificationsService } from '../features/notifications/notifications.service.js';
 
 const ESPN_API_BASE =
   'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb';
+
+const DEPTH_CHART_CATEGORY = 'Player Details - Depth Chart';
+
+type DepthChartPlayerChange = {
+  playerId: string;
+  playerName: string;
+  team: string;
+  previousValues: Record<string, unknown>;
+  nextValues: Record<string, unknown>;
+};
 
 /**
  * ESPN team ID → MLB team abbreviation (as returned by statsapi.mlb.com).
@@ -94,6 +108,23 @@ function rankToDepthChartStatus(rank: number): DepthChartStatus {
   return 'reserve';
 }
 
+function normalizePositions(positions: string[] | undefined): string[] {
+  return [...(positions ?? [])].sort();
+}
+
+function arraysEqual(left: string[], right: string[]): boolean {
+  return (
+    left.length === right.length &&
+    left.every((value, index) => value === right[index])
+  );
+}
+
+function buildDepthChartNotificationMessage(
+  change: DepthChartPlayerChange,
+): string {
+  return `${change.playerName} (${change.team}) updated: ${DEPTH_CHART_CATEGORY}`;
+}
+
 async function fetchTeamDepthChart(
   espnTeamId: number,
   mlbAbbr: string,
@@ -158,12 +189,138 @@ async function syncAllDepthCharts(): Promise<void> {
         Number(espnId),
         mlbAbbr,
       );
+      const existingPlayers = await PlayerModel.find(
+        { team },
+        {
+          _id: 1,
+          name: 1,
+          team: 1,
+          positions: 1,
+          depthChartStatus: 1,
+          depthChartOrder: 1,
+        },
+      ).lean();
+      const existingPlayersByName = new Map(
+        (existingPlayers as Player[]).map((player) => [player.name, player]),
+      );
 
       const updated = await playersService.syncTeamDepthCharts(team, updates);
       console.log(
         `  ${mlbAbbr}: ${updated} players updated (${updates.length} in chart)`,
       );
       totalUpdated += updated;
+
+      const updatedPlayerNames = new Set(updates.map((update) => update.name));
+
+      const updatedEntryChanges: DepthChartPlayerChange[] = updates.flatMap(
+        (update) => {
+          const previousPlayer = existingPlayersByName.get(update.name);
+
+          if (!previousPlayer) {
+            return [];
+          }
+
+          const previousPositions = normalizePositions(
+            previousPlayer.positions,
+          );
+          const nextPositions = normalizePositions(
+            update.positionOverride ?? previousPlayer.positions,
+          );
+
+          if (
+            (previousPlayer.depthChartStatus ?? null) ===
+              update.depthChartStatus &&
+            (previousPlayer.depthChartOrder ?? null) ===
+              update.depthChartOrder &&
+            arraysEqual(previousPositions, nextPositions)
+          ) {
+            return [];
+          }
+
+          return [
+            {
+              playerId: String(previousPlayer._id),
+              playerName: previousPlayer.name,
+              team,
+              previousValues: {
+                depthChartStatus: previousPlayer.depthChartStatus ?? null,
+                depthChartOrder: previousPlayer.depthChartOrder ?? null,
+                positions: previousPositions,
+              },
+              nextValues: {
+                depthChartStatus: update.depthChartStatus,
+                depthChartOrder: update.depthChartOrder,
+                positions: nextPositions,
+              },
+            },
+          ];
+        },
+      );
+
+      const clearedEntryChanges = (existingPlayers as Player[]).flatMap(
+        (player) => {
+          if (
+            updatedPlayerNames.has(player.name) ||
+            ((player.depthChartStatus ?? null) === null &&
+              (player.depthChartOrder ?? null) === null)
+          ) {
+            return [];
+          }
+
+          return [
+            {
+              playerId: String(player._id),
+              playerName: player.name,
+              team,
+              previousValues: {
+                depthChartStatus: player.depthChartStatus ?? null,
+                depthChartOrder: player.depthChartOrder ?? null,
+                positions: normalizePositions(player.positions),
+              },
+              nextValues: {
+                depthChartStatus: null,
+                depthChartOrder: null,
+                positions: normalizePositions(player.positions),
+              },
+            },
+          ];
+        },
+      );
+
+      const depthChartChanges = [
+        ...updatedEntryChanges,
+        ...clearedEntryChanges,
+      ];
+
+      if (depthChartChanges.length > 0) {
+        const targetsByPlayerId =
+          await notificationsService.resolveTargetUserIdsByPlayerIds(
+            depthChartChanges.map((change) => change.playerId),
+          );
+
+        for (const change of depthChartChanges) {
+          const targetUserIds = targetsByPlayerId[change.playerId] ?? [];
+
+          if (targetUserIds.length === 0) {
+            continue;
+          }
+
+          await notificationsService.push({
+            type: 'player-details-updated',
+            message: buildDepthChartNotificationMessage(change),
+            data: {
+              playerId: change.playerId,
+              playerName: change.playerName,
+              team: change.team,
+              changedCategories: [DEPTH_CHART_CATEGORY],
+              previousValues: change.previousValues,
+              nextValues: change.nextValues,
+              syncedAt: new Date().toISOString(),
+            },
+            targetUserIds,
+          });
+        }
+      }
 
       // Polite rate limiting between teams
       await new Promise((resolve) => setTimeout(resolve, 200));

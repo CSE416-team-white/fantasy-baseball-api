@@ -78,6 +78,7 @@ const BasePlayerSchema = z.object({
   jerseyNumber: z.string().optional(),
   depthChartStatus: DepthChartStatusSchema.optional(),
   depthChartOrder: z.number().int().min(1).optional(),
+  transactionStatus: z.string().optional(),
   injuryStatus: InjuryStatusSchema.default('active'),
   injuryNote: z.string().optional(),
 

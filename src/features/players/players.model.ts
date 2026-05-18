@@ -56,6 +56,9 @@ const playerSchema = new Schema<Player>(
       type: Number,
       min: 1,
     },
+    transactionStatus: {
+      type: String,
+    },
     injuryStatus: {
       type: String,
       enum: ['active', 'day-to-day', 'il-10', 'il-15', 'il-60', 'out'],

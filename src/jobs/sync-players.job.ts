@@ -1,6 +1,11 @@
 import { getAgenda } from '../loaders/agenda.js';
+import { PlayerModel } from '../features/players/players.model.js';
 import { playersService } from '../features/players/players.service.js';
-import type { PlayerInput, PlayerPosition } from '../features/players/players.types.js';
+import type {
+  Player,
+  PlayerInput,
+  PlayerPosition,
+} from '../features/players/players.types.js';
 import { notificationsService } from '../features/notifications/notifications.service.js';
 
 const MLB_API_BASE = 'https://statsapi.mlb.com/api/v1';
@@ -96,11 +101,15 @@ async function getAllTeams(): Promise<MLBTeam[]> {
   const response = await fetchJSON<{ teams: MLBTeam[] }>(
     `${MLB_API_BASE}/teams?sportId=1&season=${currentYear}`,
   );
-  return response.teams.filter((t) => t.league.id === 103 || t.league.id === 104);
+  return response.teams.filter(
+    (t) => t.league.id === 103 || t.league.id === 104,
+  );
 }
 
 async function getTeamRoster(teamId: number): Promise<MLBRosterResponse> {
-  return fetchJSON<MLBRosterResponse>(`${MLB_API_BASE}/teams/${teamId}/roster/40Man`);
+  return fetchJSON<MLBRosterResponse>(
+    `${MLB_API_BASE}/teams/${teamId}/roster/40Man`,
+  );
 }
 
 async function getPlayerDetails(playerId: number): Promise<MLBPlayer | null> {
@@ -115,7 +124,9 @@ async function getPlayerDetails(playerId: number): Promise<MLBPlayer | null> {
 }
 
 // Fetches last season's fielding stats to determine multi-position eligibility
-async function getFieldingPositions(playerId: number): Promise<PlayerPosition[]> {
+async function getFieldingPositions(
+  playerId: number,
+): Promise<PlayerPosition[]> {
   try {
     const data = await fetchJSON<MLBFieldingStats>(
       `${MLB_API_BASE}/people/${playerId}/stats?stats=season&group=fielding&season=${LAST_SEASON}`,
@@ -163,7 +174,8 @@ async function getPlayerHistoricalStats(
           losses: Number(s.stat['losses']) || undefined,
           saves: Number(s.stat['saves']) || undefined,
           strikeouts: Number(s.stat['strikeOuts']) || undefined,
-          innings: parseFloat(String(s.stat['inningsPitched'] ?? '')) || undefined,
+          innings:
+            parseFloat(String(s.stat['inningsPitched'] ?? '')) || undefined,
         },
       }));
     }
@@ -199,10 +211,12 @@ async function buildPositions(
   const posSet = new Set<PlayerPosition>();
 
   const fromRoster = toPlayerPosition(rosterAbbr);
-  if (fromRoster && fromRoster !== 'SP' && fromRoster !== 'RP') posSet.add(fromRoster);
+  if (fromRoster && fromRoster !== 'SP' && fromRoster !== 'RP')
+    posSet.add(fromRoster);
 
   const fromPrimary = toPlayerPosition(primaryAbbr ?? '');
-  if (fromPrimary && fromPrimary !== 'SP' && fromPrimary !== 'RP') posSet.add(fromPrimary);
+  if (fromPrimary && fromPrimary !== 'SP' && fromPrimary !== 'RP')
+    posSet.add(fromPrimary);
 
   // Fetch fielding stats for multi-position eligibility
   const fieldingPositions = await getFieldingPositions(playerId);
@@ -212,7 +226,10 @@ async function buildPositions(
   return posSet.size > 0 ? Array.from(posSet) : ['DH'];
 }
 
-function isPitcherPosition(rosterAbbr: string, primaryAbbr: string | undefined): boolean {
+function isPitcherPosition(
+  rosterAbbr: string,
+  primaryAbbr: string | undefined,
+): boolean {
   const abbr = primaryAbbr ?? rosterAbbr;
   return abbr === 'SP' || abbr === 'RP' || abbr === 'P' || rosterAbbr === 'P';
 }
@@ -227,6 +244,150 @@ function mapInjuryStatus(statusCode: string): PlayerInput['injuryStatus'] {
     OUT: 'out',
   };
   return statusMap[statusCode] ?? 'active';
+}
+
+const PLAYER_DETAILS_CATEGORY = {
+  depthChart: 'Player Details - Depth Chart',
+  transactionStatus: 'Player Details - Transactions/Contract Status',
+  injuryNews: 'Player Details - Injury/News',
+} as const;
+
+type PlayerChangeCategory =
+  (typeof PLAYER_DETAILS_CATEGORY)[keyof typeof PLAYER_DETAILS_CATEGORY];
+
+type TrackedPlayerChange = {
+  playerId: string;
+  playerName: string;
+  team: string;
+  changedCategories: PlayerChangeCategory[];
+  previousValues: Record<string, unknown>;
+  nextValues: Record<string, unknown>;
+};
+
+function normalizeString(value: string | null | undefined): string | null {
+  if (typeof value !== 'string') {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function normalizePositions(positions: string[] | undefined): string[] {
+  return [...(positions ?? [])].sort();
+}
+
+function arraysEqual(left: string[], right: string[]): boolean {
+  return (
+    left.length === right.length &&
+    left.every((value, index) => value === right[index])
+  );
+}
+
+function buildPlayerChangeMessage(change: TrackedPlayerChange): string {
+  return `${change.playerName} (${change.team}) updated: ${change.changedCategories.join(', ')}`;
+}
+
+async function pushLeagueScopedPlayerNotifications(
+  changes: TrackedPlayerChange[],
+): Promise<void> {
+  if (changes.length === 0) {
+    return;
+  }
+
+  const targetsByPlayerId =
+    await notificationsService.resolveTargetUserIdsByPlayerIds(
+      changes.map((change) => change.playerId),
+    );
+
+  for (const change of changes) {
+    const targetUserIds = targetsByPlayerId[change.playerId] ?? [];
+
+    if (targetUserIds.length === 0) {
+      continue;
+    }
+
+    await notificationsService.push({
+      type: 'player-details-updated',
+      message: buildPlayerChangeMessage(change),
+      data: {
+        playerId: change.playerId,
+        playerName: change.playerName,
+        team: change.team,
+        changedCategories: change.changedCategories,
+        previousValues: change.previousValues,
+        nextValues: change.nextValues,
+        syncedAt: new Date().toISOString(),
+      },
+      targetUserIds,
+    });
+  }
+}
+
+function detectPlayerDetailsChanges(
+  previousPlayer: Player,
+  nextPlayer: PlayerInput,
+): TrackedPlayerChange | null {
+  const changedCategories: PlayerChangeCategory[] = [];
+
+  const previousPositions = normalizePositions(previousPlayer.positions);
+  const nextPositions = normalizePositions(nextPlayer.positions);
+
+  if (!arraysEqual(previousPositions, nextPositions)) {
+    changedCategories.push(PLAYER_DETAILS_CATEGORY.depthChart);
+  }
+
+  const previousTransactionStatus = normalizeString(
+    previousPlayer.transactionStatus,
+  );
+  const nextTransactionStatus = normalizeString(nextPlayer.transactionStatus);
+
+  if (
+    previousPlayer.team !== nextPlayer.team ||
+    (previousPlayer.active ?? true) !== (nextPlayer.active ?? true) ||
+    previousTransactionStatus !== nextTransactionStatus
+  ) {
+    changedCategories.push(PLAYER_DETAILS_CATEGORY.transactionStatus);
+  }
+
+  const previousInjuryStatus = previousPlayer.injuryStatus ?? 'active';
+  const nextInjuryStatus = nextPlayer.injuryStatus ?? 'active';
+  const previousInjuryNote = normalizeString(previousPlayer.injuryNote);
+  const nextInjuryNote = normalizeString(nextPlayer.injuryNote);
+
+  if (
+    previousInjuryStatus !== nextInjuryStatus ||
+    previousInjuryNote !== nextInjuryNote
+  ) {
+    changedCategories.push(PLAYER_DETAILS_CATEGORY.injuryNews);
+  }
+
+  if (changedCategories.length === 0) {
+    return null;
+  }
+
+  return {
+    playerId: String(previousPlayer._id),
+    playerName: nextPlayer.name,
+    team: nextPlayer.team,
+    changedCategories,
+    previousValues: {
+      positions: previousPositions,
+      team: previousPlayer.team,
+      active: previousPlayer.active ?? true,
+      transactionStatus: previousTransactionStatus,
+      injuryStatus: previousInjuryStatus,
+      injuryNote: previousInjuryNote,
+    },
+    nextValues: {
+      positions: nextPositions,
+      team: nextPlayer.team,
+      active: nextPlayer.active ?? true,
+      transactionStatus: nextTransactionStatus,
+      injuryStatus: nextInjuryStatus,
+      injuryNote: nextInjuryNote,
+    },
+  };
 }
 
 async function fetchAllMLBPlayers(): Promise<PlayerInput[]> {
@@ -256,8 +417,15 @@ async function fetchAllMLBPlayers(): Promise<PlayerInput[]> {
         const primaryAbbr = playerDetails?.primaryPosition?.abbreviation;
         const isPitcher = isPitcherPosition(rosterAbbr, primaryAbbr);
 
-        const positions = await buildPositions(player.id, rosterAbbr, primaryAbbr, isPitcher);
-        const playerType: 'hitter' | 'pitcher' = isPitcher ? 'pitcher' : 'hitter';
+        const positions = await buildPositions(
+          player.id,
+          rosterAbbr,
+          primaryAbbr,
+          isPitcher,
+        );
+        const playerType: 'hitter' | 'pitcher' = isPitcher
+          ? 'pitcher'
+          : 'hitter';
         const injuryStatus = mapInjuryStatus(entry.status.code);
 
         const stats = await getPlayerHistoricalStats(player.id, isPitcher);
@@ -270,6 +438,7 @@ async function fetchAllMLBPlayers(): Promise<PlayerInput[]> {
           positions,
           league,
           jerseyNumber: entry.jerseyNumber,
+          transactionStatus: entry.status.description,
           injuryStatus,
           birthDate: playerDetails?.birthDate,
           age: playerDetails?.currentAge,
@@ -285,12 +454,19 @@ async function fetchAllMLBPlayers(): Promise<PlayerInput[]> {
             ? {
                 ...base,
                 playerType: 'pitcher' as const,
-                pitchHand: playerDetails?.pitchHand?.code as 'R' | 'L' | undefined,
+                pitchHand: playerDetails?.pitchHand?.code as
+                  | 'R'
+                  | 'L'
+                  | undefined,
               }
             : {
                 ...base,
                 playerType: 'hitter' as const,
-                batSide: playerDetails?.batSide?.code as 'R' | 'L' | 'S' | undefined,
+                batSide: playerDetails?.batSide?.code as
+                  | 'R'
+                  | 'L'
+                  | 'S'
+                  | undefined,
               };
 
         allPlayers.push(playerInput);
@@ -313,12 +489,54 @@ export function definePlayerSyncJob() {
     console.log('Running player sync job...');
     try {
       const externalPlayers = await fetchAllMLBPlayers();
+      const existingPlayers = await PlayerModel.find(
+        {
+          externalId: {
+            $in: externalPlayers.map((player) => player.externalId),
+          },
+        },
+        {
+          _id: 1,
+          externalId: 1,
+          name: 1,
+          team: 1,
+          positions: 1,
+          transactionStatus: 1,
+          injuryStatus: 1,
+          injuryNote: 1,
+          active: 1,
+        },
+      ).lean();
+      const existingPlayersByExternalId = new Map(
+        (existingPlayers as Player[]).map((player) => [
+          player.externalId,
+          player,
+        ]),
+      );
+      const trackedChanges = externalPlayers.flatMap((player) => {
+        const previousPlayer = existingPlayersByExternalId.get(
+          player.externalId,
+        );
+        const change =
+          previousPlayer !== undefined
+            ? detectPlayerDetailsChanges(previousPlayer, player)
+            : null;
+
+        return change ? [change] : [];
+      });
       const updatedCount = await playersService.upsertPlayers(externalPlayers);
-      console.log(`Synced ${externalPlayers.length} players (${updatedCount} updated/inserted)`);
+      await pushLeagueScopedPlayerNotifications(trackedChanges);
+      console.log(
+        `Synced ${externalPlayers.length} players (${updatedCount} updated/inserted)`,
+      );
       notificationsService.push({
         type: 'players-updated',
         message: `Player roster synced — ${updatedCount} players updated`,
-        data: { total: externalPlayers.length, updated: updatedCount, syncedAt: new Date().toISOString() },
+        data: {
+          total: externalPlayers.length,
+          updated: updatedCount,
+          syncedAt: new Date().toISOString(),
+        },
       });
     } catch (error) {
       console.error('Player sync failed:', error);
