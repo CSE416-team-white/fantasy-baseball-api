@@ -12,6 +12,8 @@ function createDeps(): ManageApiKeysDeps {
         serviceName: 'draft-kit',
         status: 'active',
         keyPrefix: 'prefix1234',
+        rateLimitPerMinute: null,
+        effectiveRateLimitPerMinute: 500,
         createdAt: new Date('2025-01-01T00:00:00.000Z'),
         updatedAt: new Date('2025-01-01T00:00:00.000Z'),
       },
@@ -23,6 +25,8 @@ function createDeps(): ManageApiKeysDeps {
         serviceName: 'draft-kit',
         status: 'active',
         keyPrefix: 'prefix5678',
+        rateLimitPerMinute: null,
+        effectiveRateLimitPerMinute: 500,
         createdAt: new Date('2025-01-01T00:00:00.000Z'),
         updatedAt: new Date('2025-01-02T00:00:00.000Z'),
       },
@@ -32,6 +36,28 @@ function createDeps(): ManageApiKeysDeps {
       serviceName: 'draft-kit',
       status: 'inactive',
       keyPrefix: 'prefix1234',
+      rateLimitPerMinute: null,
+      effectiveRateLimitPerMinute: 500,
+      createdAt: new Date('2025-01-01T00:00:00.000Z'),
+      updatedAt: new Date('2025-01-03T00:00:00.000Z'),
+    }),
+    updateRateLimitPerMinute: vi.fn().mockResolvedValue({
+      id: 'id-1',
+      serviceName: 'draft-kit',
+      status: 'active',
+      keyPrefix: 'prefix1234',
+      rateLimitPerMinute: 750,
+      effectiveRateLimitPerMinute: 750,
+      createdAt: new Date('2025-01-01T00:00:00.000Z'),
+      updatedAt: new Date('2025-01-03T00:00:00.000Z'),
+    }),
+    clearRateLimitPerMinute: vi.fn().mockResolvedValue({
+      id: 'id-1',
+      serviceName: 'draft-kit',
+      status: 'active',
+      keyPrefix: 'prefix1234',
+      rateLimitPerMinute: null,
+      effectiveRateLimitPerMinute: 500,
       createdAt: new Date('2025-01-01T00:00:00.000Z'),
       updatedAt: new Date('2025-01-03T00:00:00.000Z'),
     }),
@@ -40,6 +66,8 @@ function createDeps(): ManageApiKeysDeps {
       serviceName: 'draft-kit',
       status: 'active',
       keyPrefix: 'prefix1234',
+      rateLimitPerMinute: 750,
+      effectiveRateLimitPerMinute: 750,
       createdAt: new Date('2025-01-01T00:00:00.000Z'),
       updatedAt: new Date('2025-01-03T00:00:00.000Z'),
     }),
@@ -92,6 +120,12 @@ describe('manage-api-keys script', () => {
 
     expect(exitCode).toBe(0);
     expect(deps.getServiceByName).toHaveBeenCalledWith('draft-kit');
+    expect(deps.log).toHaveBeenCalledWith(
+      'Rate Limit Override Per Minute: 750',
+    );
+    expect(deps.log).toHaveBeenCalledWith(
+      'Effective Rate Limit Per Minute: 750',
+    );
   });
 
   it('should run delete action', async () => {
@@ -101,6 +135,33 @@ describe('manage-api-keys script', () => {
 
     expect(exitCode).toBe(0);
     expect(deps.deleteServiceKey).toHaveBeenCalledWith('draft-kit');
+  });
+
+  it('should run set-rate-limit action', async () => {
+    const deps = createDeps();
+
+    const exitCode = await runManageApiKeys(
+      ['set-rate-limit', 'draft-kit', '750'],
+      deps,
+    );
+
+    expect(exitCode).toBe(0);
+    expect(deps.updateRateLimitPerMinute).toHaveBeenCalledWith(
+      'draft-kit',
+      750,
+    );
+  });
+
+  it('should run clear-rate-limit action', async () => {
+    const deps = createDeps();
+
+    const exitCode = await runManageApiKeys(
+      ['clear-rate-limit', 'draft-kit'],
+      deps,
+    );
+
+    expect(exitCode).toBe(0);
+    expect(deps.clearRateLimitPerMinute).toHaveBeenCalledWith('draft-kit');
   });
 
   it('should fail on invalid action', async () => {
@@ -121,5 +182,18 @@ describe('manage-api-keys script', () => {
     expect(exitCode).toBe(1);
     expect(deps.error).toHaveBeenCalled();
     expect(deps.setServiceStatus).not.toHaveBeenCalled();
+  });
+
+  it('should fail when set-rate-limit has no numeric value', async () => {
+    const deps = createDeps();
+
+    const exitCode = await runManageApiKeys(
+      ['set-rate-limit', 'draft-kit', 'abc'],
+      deps,
+    );
+
+    expect(exitCode).toBe(1);
+    expect(deps.error).toHaveBeenCalled();
+    expect(deps.updateRateLimitPerMinute).not.toHaveBeenCalled();
   });
 });

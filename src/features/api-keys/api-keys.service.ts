@@ -7,6 +7,7 @@ import {
   type ApiKeyPublic,
   type ApiKeyStatus,
   ApiKeyStatusSchema,
+  RateLimitPerMinuteSchema,
   ServiceNameSchema,
 } from './api-keys.types.js';
 import { env } from '@/config/env.js';
@@ -34,17 +35,28 @@ function toPublicApiKey(doc: {
   serviceName: string;
   status: ApiKeyStatus;
   keyPrefix: string;
+  rateLimitPerMinute?: number | null;
   createdAt: Date;
   updatedAt: Date;
 }): ApiKeyPublic {
+  const rateLimitPerMinute = doc.rateLimitPerMinute ?? null;
   return {
     id: doc._id.toString(),
     serviceName: doc.serviceName,
     status: doc.status,
     keyPrefix: doc.keyPrefix,
+    rateLimitPerMinute,
+    effectiveRateLimitPerMinute:
+      resolveEffectiveRateLimitPerMinute(rateLimitPerMinute),
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };
+}
+
+function resolveEffectiveRateLimitPerMinute(
+  rateLimitPerMinute?: number | null,
+): number {
+  return rateLimitPerMinute ?? env.apiKeyRateLimitPerMinute;
 }
 
 export class ApiKeysService {
@@ -78,6 +90,7 @@ export class ApiKeysService {
         serviceName: created.serviceName,
         status: created.status,
         keyPrefix: created.keyPrefix,
+        rateLimitPerMinute: created.rateLimitPerMinute,
         createdAt: created.createdAt,
         updatedAt: created.updatedAt,
       }),
@@ -109,6 +122,7 @@ export class ApiKeysService {
         serviceName: existing.serviceName,
         status: existing.status,
         keyPrefix: existing.keyPrefix,
+        rateLimitPerMinute: existing.rateLimitPerMinute,
         createdAt: existing.createdAt,
         updatedAt: existing.updatedAt,
       }),
@@ -140,6 +154,7 @@ export class ApiKeysService {
       serviceName: updated.serviceName,
       status: updated.status,
       keyPrefix: updated.keyPrefix,
+      rateLimitPerMinute: updated.rateLimitPerMinute,
       createdAt: updated.createdAt,
       updatedAt: updated.updatedAt,
     });
@@ -187,6 +202,9 @@ export class ApiKeysService {
       serviceName: apiKey.serviceName,
       status: apiKey.status,
       allowedIPs: apiKey.allowedIPs ?? [],
+      effectiveRateLimitPerMinute: resolveEffectiveRateLimitPerMinute(
+        apiKey.rateLimitPerMinute,
+      ),
     };
   }
 
@@ -202,6 +220,7 @@ export class ApiKeysService {
       serviceName: apiKey.serviceName,
       status: apiKey.status,
       keyPrefix: apiKey.keyPrefix,
+      rateLimitPerMinute: apiKey.rateLimitPerMinute,
       createdAt: apiKey.createdAt,
       updatedAt: apiKey.updatedAt,
     });
@@ -220,7 +239,10 @@ export class ApiKeysService {
     );
 
     if (!updated) {
-      throw new ApiError(HTTP_STATUS.NOT_FOUND, `Service not found: ${serviceName}`);
+      throw new ApiError(
+        HTTP_STATUS.NOT_FOUND,
+        `Service not found: ${serviceName}`,
+      );
     }
 
     return toPublicApiKey({
@@ -228,6 +250,69 @@ export class ApiKeysService {
       serviceName: updated.serviceName,
       status: updated.status,
       keyPrefix: updated.keyPrefix,
+      rateLimitPerMinute: updated.rateLimitPerMinute,
+      createdAt: updated.createdAt,
+      updatedAt: updated.updatedAt,
+    });
+  }
+
+  async updateRateLimitPerMinute(
+    serviceNameInput: string,
+    rateLimitPerMinuteInput: number,
+  ): Promise<ApiKeyPublic> {
+    const serviceName = ServiceNameSchema.parse(serviceNameInput);
+    const rateLimitPerMinute = RateLimitPerMinuteSchema.parse(
+      rateLimitPerMinuteInput,
+    );
+
+    const updated = await ServiceApiKeyModel.findOneAndUpdate(
+      { serviceName },
+      { rateLimitPerMinute },
+      { new: true, runValidators: true },
+    );
+
+    if (!updated) {
+      throw new ApiError(
+        HTTP_STATUS.NOT_FOUND,
+        `Service not found: ${serviceName}`,
+      );
+    }
+
+    return toPublicApiKey({
+      _id: updated._id.toString(),
+      serviceName: updated.serviceName,
+      status: updated.status,
+      keyPrefix: updated.keyPrefix,
+      rateLimitPerMinute: updated.rateLimitPerMinute,
+      createdAt: updated.createdAt,
+      updatedAt: updated.updatedAt,
+    });
+  }
+
+  async clearRateLimitPerMinute(
+    serviceNameInput: string,
+  ): Promise<ApiKeyPublic> {
+    const serviceName = ServiceNameSchema.parse(serviceNameInput);
+
+    const updated = await ServiceApiKeyModel.findOneAndUpdate(
+      { serviceName },
+      { $unset: { rateLimitPerMinute: 1 } },
+      { new: true, runValidators: true },
+    );
+
+    if (!updated) {
+      throw new ApiError(
+        HTTP_STATUS.NOT_FOUND,
+        `Service not found: ${serviceName}`,
+      );
+    }
+
+    return toPublicApiKey({
+      _id: updated._id.toString(),
+      serviceName: updated.serviceName,
+      status: updated.status,
+      keyPrefix: updated.keyPrefix,
+      rateLimitPerMinute: updated.rateLimitPerMinute,
       createdAt: updated.createdAt,
       updatedAt: updated.updatedAt,
     });
@@ -249,6 +334,7 @@ export class ApiKeysService {
       serviceName: apiKey.serviceName,
       status: apiKey.status,
       keyPrefix: apiKey.keyPrefix,
+      rateLimitPerMinute: apiKey.rateLimitPerMinute,
       createdAt: apiKey.createdAt,
       updatedAt: apiKey.updatedAt,
     });

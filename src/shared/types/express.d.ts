@@ -8,6 +8,7 @@ declare namespace Express {
       serviceName: string;
       status: 'active' | 'inactive';
       allowedIPs: string[];
+      effectiveRateLimitPerMinute: number;
     };
   }
 }

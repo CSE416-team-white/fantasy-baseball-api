@@ -7,6 +7,7 @@ type ApiClientContext = {
   serviceName: string;
   status: 'active' | 'inactive';
   allowedIPs: string[];
+  effectiveRateLimitPerMinute: number;
 };
 
 type AuthenticateFn = (rawKey: string) => Promise<ApiClientContext>;
@@ -31,7 +32,10 @@ export function createRequireApiKey(authenticate: AuthenticateFn) {
         const raw = req.ip ?? req.socket?.remoteAddress ?? '';
         const requestIp = raw.replace('::ffff:', ''); // normalise IPv4-mapped IPv6
         if (!apiClient.allowedIPs.includes(requestIp)) {
-          throw new ApiError(HTTP_STATUS.FORBIDDEN, `IP ${requestIp} is not whitelisted for this key`);
+          throw new ApiError(
+            HTTP_STATUS.FORBIDDEN,
+            `IP ${requestIp} is not whitelisted for this key`,
+          );
         }
       }
 

@@ -42,6 +42,13 @@ const router = Router();
  *                     keyPrefix:
  *                       type: string
  *                       example: abcd123456
+ *                     rateLimitPerMinute:
+ *                       type: integer
+ *                       nullable: true
+ *                       example: 750
+ *                     effectiveRateLimitPerMinute:
+ *                       type: integer
+ *                       example: 500
  *                     createdAt:
  *                       type: string
  *                       format: date-time
@@ -79,7 +86,10 @@ router.get(
   '/me',
   asyncHandler(async (req: Request, res: Response) => {
     if (!req.apiClient) {
-      throw new ApiError(HTTP_STATUS.UNAUTHORIZED, 'Missing API client context');
+      throw new ApiError(
+        HTTP_STATUS.UNAUTHORIZED,
+        'Missing API client context',
+      );
     }
     const apiKey = await apiKeysService.getServiceById(req.apiClient.keyId);
     sendSuccess(res, apiKey);
@@ -113,12 +123,18 @@ router.put(
   '/allowed-ips',
   asyncHandler(async (req: Request, res: Response) => {
     if (!req.apiClient) {
-      throw new ApiError(HTTP_STATUS.UNAUTHORIZED, 'Missing API client context');
+      throw new ApiError(
+        HTTP_STATUS.UNAUTHORIZED,
+        'Missing API client context',
+      );
     }
     const { allowedIPs } = z
       .object({ allowedIPs: z.array(z.string().ip()) })
       .parse(req.body);
-    const updated = await apiKeysService.updateAllowedIPs(req.apiClient.serviceName, allowedIPs);
+    const updated = await apiKeysService.updateAllowedIPs(
+      req.apiClient.serviceName,
+      allowedIPs,
+    );
     sendSuccess(res, updated);
   }),
 );

@@ -5,6 +5,7 @@ This project uses a simple licensing model:
 - Each client service gets its own API key (for example: `draft-kit`).
 - License state is binary: `active` or `inactive`.
 - No tiers, quotas, or feature flags.
+- Protected data routes are throttled per API key.
 - Protected routes require `x-api-key`.
 
 ## How It Works
@@ -45,6 +46,14 @@ DISABLE_API_KEY_AUTH=true
 
 Use only for local testing; keep this `false` in production.
 
+Optional default per-key throttle:
+
+```bash
+API_KEY_RATE_LIMIT_PER_MINUTE=500
+```
+
+Each key inherits this limit unless an operator sets an override.
+
 ## Operator Key Management
 
 From repo root:
@@ -54,6 +63,8 @@ npm run api-keys -- create draft-kit
 npm run api-keys -- rotate draft-kit
 npm run api-keys -- set-status draft-kit inactive
 npm run api-keys -- set-status draft-kit active
+npm run api-keys -- set-rate-limit draft-kit 750
+npm run api-keys -- clear-rate-limit draft-kit
 npm run api-keys -- show draft-kit
 npm run api-keys -- delete draft-kit
 ```
@@ -95,11 +106,16 @@ Expected response shape:
     "serviceName": "draft-kit",
     "status": "active",
     "keyPrefix": "abc123def4",
+    "rateLimitPerMinute": null,
+    "effectiveRateLimitPerMinute": 500,
     "createdAt": "2026-02-28T12:00:00.000Z",
     "updatedAt": "2026-02-28T12:00:00.000Z"
   }
 }
 ```
+
+Protected data routes currently use a fixed 60-second window. The default limit is
+`500 requests per minute per API key`, unless the key has an operator-set override.
 
 ## Maintenance Runbook
 
