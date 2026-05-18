@@ -8,6 +8,7 @@ import type {
   ValuationMultipliers,
 } from './valuations.types.js';
 import { ApiError } from '@/shared/utils/api-error.js';
+import { ROOKIE_AVERAGES } from './rookie-averages.js';
 
 // Maps league scoring category names → player stat field names
 const BATTING_STAT_MAP: Record<string, string> = {
@@ -110,6 +111,11 @@ export class ValuationsService {
       all = all.filter((v) => v.playerType === query.playerType);
     }
 
+    if (query.name) {
+      const search = query.name.toLowerCase();
+      all = all.filter((v) => v.name.toLowerCase().includes(search));
+    }
+
     const total = all.length;
     const start = (query.page - 1) * query.limit;
 
@@ -122,31 +128,56 @@ export class ValuationsService {
     };
   }
 
+  private static readonly TARGET_SEASONS = ['2023', '2024', '2025'] as const;
+  private static readonly SEASON_WEIGHTS: Record<string, number> = {
+    '2023': 0.1,
+    '2024': 0.3,
+    '2025': 0.6,
+  };
+
   private averageStats(player: Player): Record<string, number> {
-    const relevantStats = (player.stats ?? [])
-      .filter((s) => s.type === player.playerType)
-      .slice(-3);
+    const primaryPosition = player.positions?.[0] ?? '';
 
-    if (relevantStats.length === 0) return {};
-
-    const summed: Record<string, number> = {};
-    const counts: Record<string, number> = {};
-
-    for (const stat of relevantStats) {
-      if (!stat.data) continue;
+    const statsBySeason: Record<string, Record<string, number>> = {};
+    for (const stat of (player.stats ?? []).filter(
+      (s) => s.type === player.playerType,
+    )) {
+      const data: Record<string, number> = {};
       for (const [key, val] of Object.entries(
-        stat.data as Record<string, unknown>,
+        (stat.data ?? {}) as Record<string, unknown>,
       )) {
-        if (typeof val === 'number') {
-          summed[key] = (summed[key] ?? 0) + val;
-          counts[key] = (counts[key] ?? 0) + 1;
-        }
+        if (typeof val === 'number') data[key] = val;
       }
+      statsBySeason[String(stat.season)] = data;
     }
 
-    return Object.fromEntries(
-      Object.keys(summed).map((k) => [k, summed[k] / counts[k]]),
-    );
+    const seasons = ValuationsService.TARGET_SEASONS.map((year) => ({
+      data:
+        statsBySeason[year] ??
+        (ROOKIE_AVERAGES[year]?.[
+          primaryPosition as keyof (typeof ROOKIE_AVERAGES)[typeof year]
+        ] as Record<string, number> | undefined) ??
+        {},
+      weight: ValuationsService.SEASON_WEIGHTS[year],
+    }));
+
+    const allKeys = new Set(seasons.flatMap((s) => Object.keys(s.data)));
+    if (allKeys.size === 0) return {};
+
+    const result: Record<string, number> = {};
+    for (const key of allKeys) {
+      let weightedSum = 0;
+      let usedWeight = 0;
+      for (const { data, weight } of seasons) {
+        const val = data[key];
+        if (typeof val === 'number') {
+          weightedSum += val * weight;
+          usedWeight += weight;
+        }
+      }
+      if (usedWeight > 0) result[key] = weightedSum / usedWeight;
+    }
+    return result;
   }
 
   private computeZScores(
@@ -222,7 +253,8 @@ export class ValuationsService {
       );
 
       const mult = this.computeMultipliers(player);
-      const adjusted = baseValue * scarcity * mult.depthChart * mult.age * mult.injury;
+      const adjusted =
+        baseValue * scarcity * mult.depthChart * mult.age * mult.injury;
       const dollarValue = Math.max(1, parseFloat(adjusted.toFixed(2)));
 
       const { draftable, reason } = this.checkDraftability(
@@ -268,7 +300,10 @@ export class ValuationsService {
         poolSize[pos] = (poolSize[pos] ?? 0) + 1;
       }
       // Count UTIL-eligible hitters toward the UTIL pool
-      if (player.playerType === 'hitter' && player.positions.some((p) => UTIL_ELIGIBLE.has(p))) {
+      if (
+        player.playerType === 'hitter' &&
+        player.positions.some((p) => UTIL_ELIGIBLE.has(p))
+      ) {
         poolSize['UTIL'] = (poolSize['UTIL'] ?? 0) + 1;
       }
     }
@@ -321,9 +356,15 @@ export class ValuationsService {
       }
     } else {
       // Hitters: starter slot → 1.5x, backup → 1.0x, bench/unknown → 0.85x
-      if (player.depthChartOrder === 1 || player.depthChartStatus === 'starter') {
+      if (
+        player.depthChartOrder === 1 ||
+        player.depthChartStatus === 'starter'
+      ) {
         depthChart = 1.5;
-      } else if (player.depthChartOrder === 2 || player.depthChartStatus === 'backup') {
+      } else if (
+        player.depthChartOrder === 2 ||
+        player.depthChartStatus === 'backup'
+      ) {
         depthChart = 1.0;
       } else {
         depthChart = 0.85;
