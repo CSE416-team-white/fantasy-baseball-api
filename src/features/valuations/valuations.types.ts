@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const ValuationQuerySchema = z.object({
   teamId: z.string().optional(),
   playerType: z.enum(['hitter', 'pitcher']).optional(),
+  name: z.string().optional(),
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(50),
 });

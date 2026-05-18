@@ -110,6 +110,11 @@ export class ValuationsService {
       all = all.filter((v) => v.playerType === query.playerType);
     }
 
+    if (query.name) {
+      const search = query.name.toLowerCase();
+      all = all.filter((v) => v.name.toLowerCase().includes(search));
+    }
+
     const total = all.length;
     const start = (query.page - 1) * query.limit;
 
