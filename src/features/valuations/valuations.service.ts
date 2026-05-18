@@ -8,6 +8,7 @@ import type {
   ValuationMultipliers,
 } from './valuations.types.js';
 import { ApiError } from '@/shared/utils/api-error.js';
+import { ROOKIE_AVERAGES } from './rookie-averages.js';
 
 // Maps league scoring category names → player stat field names
 const BATTING_STAT_MAP: Record<string, string> = {
@@ -130,13 +131,15 @@ export class ValuationsService {
   };
 
   private averageStats(player: Player): Record<string, number> {
+    const primaryPosition = player.positions?.[0] ?? '';
+
     const statsBySeason: Record<string, Record<string, number>> = {};
     for (const stat of (player.stats ?? []).filter(
       (s) => s.type === player.playerType,
     )) {
       const data: Record<string, number> = {};
       for (const [key, val] of Object.entries(
-        stat.data as Record<string, unknown>,
+        (stat.data ?? {}) as Record<string, unknown>,
       )) {
         if (typeof val === 'number') data[key] = val;
       }
@@ -144,7 +147,12 @@ export class ValuationsService {
     }
 
     const seasons = ValuationsService.TARGET_SEASONS.map((year) => ({
-      data: statsBySeason[year] ?? {},
+      data:
+        statsBySeason[year] ??
+        (ROOKIE_AVERAGES[year]?.[
+          primaryPosition as keyof (typeof ROOKIE_AVERAGES)[typeof year]
+        ] as Record<string, number> | undefined) ??
+        {},
       weight: ValuationsService.SEASON_WEIGHTS[year],
     }));
 
