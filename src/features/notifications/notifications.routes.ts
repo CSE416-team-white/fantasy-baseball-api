@@ -37,7 +37,10 @@ router.get('/events', (req: Request, res: Response) => {
     `data: ${JSON.stringify({ type: 'connected', message: 'SSE stream open', timestamp: new Date().toISOString() })}\n\n`,
   );
 
-  notificationsService.addClient(res);
+  const userIdHeader = req.header('x-user-id');
+  const userId = typeof userIdHeader === 'string' ? userIdHeader.trim() : '';
+
+  notificationsService.addClient(res, userId || null);
 
   // Keep-alive ping every 30 s to prevent proxy timeouts
   const keepAlive = setInterval(() => {

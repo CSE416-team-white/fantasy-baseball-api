@@ -7,6 +7,25 @@ export interface NotificationEvent {
   timestamp: string;
 }
 
+type NotificationPushInput = Omit<NotificationEvent, 'timestamp'> & {
+  targetUserIds?: string[];
+};
+
+type NotificationArchivePayload = NotificationEvent & {
+  targetUserIds?: string[];
+};
+
+type NotificationTargetsResponse = {
+  success: boolean;
+  data?: Record<string, string[]>;
+  message?: string;
+};
+
+type ClientRecord = {
+  res: Response;
+  userId: string | null;
+};
+
 export type NotificationArchiveResult = {
   archived: boolean;
   archivedCount: number;
@@ -14,8 +33,34 @@ export type NotificationArchiveResult = {
   message?: string;
 };
 
+function stripSource(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(stripSource);
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .filter(([key]) => key !== 'source')
+        .map(([key, nestedValue]) => [key, stripSource(nestedValue)]),
+    );
+  }
+
+  return value;
+}
+
+function normalizeTargetUserIds(targetUserIds?: string[]): string[] {
+  if (!targetUserIds || targetUserIds.length === 0) {
+    return [];
+  }
+
+  return [
+    ...new Set(targetUserIds.map((userId) => userId.trim()).filter(Boolean)),
+  ];
+}
+
 export class NotificationsService {
-  private clients = new Set<Response>();
+  private clients = new Set<ClientRecord>();
 
   private getArchiveUrl(): string | null {
     return process.env.NOTIFICATION_ARCHIVE_URL?.trim() || null;
@@ -25,8 +70,31 @@ export class NotificationsService {
     return process.env.NOTIFICATION_ARCHIVE_API_KEY?.trim() || null;
   }
 
+  private getTargetUsersUrl(): string | null {
+    const configuredUrl = process.env.NOTIFICATION_TARGET_USERS_URL?.trim();
+
+    if (configuredUrl) {
+      return configuredUrl;
+    }
+
+    const archiveUrl = this.getArchiveUrl();
+
+    if (!archiveUrl) {
+      return null;
+    }
+
+    try {
+      const url = new URL(archiveUrl);
+      url.pathname = '/api/system/notifications/target-users';
+      url.search = '';
+      return url.toString();
+    } catch {
+      return null;
+    }
+  }
+
   private async archiveNotification(
-    payload: NotificationEvent,
+    payload: NotificationArchivePayload,
   ): Promise<NotificationArchiveResult> {
     const archiveUrl = this.getArchiveUrl();
     const archiveApiKey = this.getArchiveApiKey();
@@ -89,34 +157,99 @@ export class NotificationsService {
     }
   }
 
-  addClient(res: Response): void {
-    this.clients.add(res);
+  addClient(res: Response, userId?: string | null): void {
+    this.clients.add({ res, userId: userId ?? null });
   }
 
   removeClient(res: Response): void {
-    this.clients.delete(res);
+    for (const client of this.clients) {
+      if (client.res === res) {
+        this.clients.delete(client);
+      }
+    }
   }
 
-  async push(
-    event: Omit<NotificationEvent, 'timestamp'>,
-  ): Promise<NotificationArchiveResult> {
-    const payload: NotificationEvent = {
-      ...event,
+  async resolveTargetUserIdsByPlayerIds(
+    playerIds: string[],
+  ): Promise<Record<string, string[]>> {
+    const targetUsersUrl = this.getTargetUsersUrl();
+    const archiveApiKey = this.getArchiveApiKey();
+    const normalizedPlayerIds = [
+      ...new Set(playerIds.map((id) => id.trim()).filter(Boolean)),
+    ];
+
+    if (!targetUsersUrl || !archiveApiKey || normalizedPlayerIds.length === 0) {
+      return {};
+    }
+
+    try {
+      const response = await fetch(targetUsersUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': archiveApiKey,
+        },
+        body: JSON.stringify({ playerIds: normalizedPlayerIds }),
+      });
+
+      if (!response.ok) {
+        const message = (await response.text()).trim();
+        console.error(
+          `[notifications] target-user lookup failed: ${message || response.status}`,
+        );
+        return {};
+      }
+
+      const payload = (await response.json()) as NotificationTargetsResponse;
+      return payload.success && payload.data ? payload.data : {};
+    } catch (error) {
+      console.error('[notifications] target-user lookup request failed', error);
+      return {};
+    }
+  }
+
+  async push(event: NotificationPushInput): Promise<NotificationArchiveResult> {
+    const targetUserIds = normalizeTargetUserIds(event.targetUserIds);
+    const sanitizedEvent = {
+      type: event.type,
+      message: event.message,
+      data: (stripSource(event.data) ?? {}) as Record<string, unknown>,
+    };
+    const payload: NotificationArchivePayload = {
+      ...sanitizedEvent,
+      ...(targetUserIds.length > 0 ? { targetUserIds } : {}),
       timestamp: new Date().toISOString(),
     };
-    const sseMessage = `data: ${JSON.stringify(payload)}\n\n`;
+    const sseMessage = `data: ${JSON.stringify({
+      type: payload.type,
+      message: payload.message,
+      data: payload.data,
+      timestamp: payload.timestamp,
+    })}\n\n`;
+
+    let deliveredCount = 0;
+
     for (const client of this.clients) {
-      client.write(sseMessage);
+      if (
+        targetUserIds.length > 0 &&
+        (!client.userId || !targetUserIds.includes(client.userId))
+      ) {
+        continue;
+      }
+
+      client.res.write(sseMessage);
+      deliveredCount += 1;
     }
+
     const archiveResult = await this.archiveNotification(payload);
     console.log(
-      `[notifications] pushed "${event.type}" to ${this.clients.size} client(s)`,
+      `[notifications] pushed "${event.type}" to ${deliveredCount} client(s)`,
     );
     return archiveResult;
   }
 
   schedulePush(
-    event: Omit<NotificationEvent, 'timestamp'>,
+    event: Omit<NotificationPushInput, 'timestamp'>,
     delayMs: number,
   ): NodeJS.Timeout {
     return setTimeout(() => {
