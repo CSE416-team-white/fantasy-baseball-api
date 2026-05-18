@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export const ApiKeyStatusSchema = z.enum(['active', 'inactive']);
+export const RateLimitPerMinuteSchema = z.number().int().positive();
 
 export const ServiceNameSchema = z
   .string()
@@ -18,6 +19,7 @@ export const ApiKeyClientSchema = z.object({
   serviceName: ServiceNameSchema,
   status: ApiKeyStatusSchema,
   allowedIPs: z.array(z.string()).default([]),
+  effectiveRateLimitPerMinute: RateLimitPerMinuteSchema,
 });
 
 export const ApiKeyPublicSchema = z.object({
@@ -25,6 +27,8 @@ export const ApiKeyPublicSchema = z.object({
   serviceName: ServiceNameSchema,
   status: ApiKeyStatusSchema,
   keyPrefix: z.string(),
+  rateLimitPerMinute: RateLimitPerMinuteSchema.nullable(),
+  effectiveRateLimitPerMinute: RateLimitPerMinuteSchema,
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -40,6 +44,7 @@ export interface ServiceApiKey {
   keyPrefix: string;
   status: ApiKeyStatus;
   allowedIPs: string[];
+  rateLimitPerMinute?: number;
   createdAt: Date;
   updatedAt: Date;
 }

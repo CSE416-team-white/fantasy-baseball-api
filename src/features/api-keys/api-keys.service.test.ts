@@ -18,6 +18,8 @@ describe('ApiKeysService', () => {
     expect(rawKey).toContain('draft-kit_');
     expect(apiKey.serviceName).toBe('draft-kit');
     expect(apiKey.status).toBe('active');
+    expect(apiKey.rateLimitPerMinute).toBeNull();
+    expect(apiKey.effectiveRateLimitPerMinute).toBe(500);
     expect(stored).toBeTruthy();
     expect(stored?.keyHash).toBeDefined();
     expect(stored?.keyHash).not.toBe(rawKey);
@@ -51,6 +53,7 @@ describe('ApiKeysService', () => {
     );
     expect(authenticated.serviceName).toBe('draft-kit');
     expect(authenticated.status).toBe('active');
+    expect(authenticated.effectiveRateLimitPerMinute).toBe(500);
   });
 
   it('should block inactive keys', async () => {
@@ -79,6 +82,8 @@ describe('ApiKeysService', () => {
 
     expect(service.serviceName).toBe('draft-kit');
     expect(service.status).toBe('active');
+    expect(service.rateLimitPerMinute).toBeNull();
+    expect(service.effectiveRateLimitPerMinute).toBe(500);
     expect(
       (service as unknown as { keyHash?: string }).keyHash,
     ).toBeUndefined();
@@ -133,7 +138,9 @@ describe('ApiKeysService', () => {
 
       expect(updated.serviceName).toBe('ip-test-service');
 
-      const stored = await ServiceApiKeyModel.findOne({ serviceName: 'ip-test-service' }).lean();
+      const stored = await ServiceApiKeyModel.findOne({
+        serviceName: 'ip-test-service',
+      }).lean();
       expect(stored?.allowedIPs).toEqual(['203.0.113.1', '198.51.100.7']);
     });
 
@@ -143,17 +150,26 @@ describe('ApiKeysService', () => {
 
       await apiKeysService.updateAllowedIPs('ip-clear-service', []);
 
-      const stored = await ServiceApiKeyModel.findOne({ serviceName: 'ip-clear-service' }).lean();
+      const stored = await ServiceApiKeyModel.findOne({
+        serviceName: 'ip-clear-service',
+      }).lean();
       expect(stored?.allowedIPs).toEqual([]);
     });
 
     it('should replace the existing IP list, not append to it', async () => {
       await apiKeysService.createServiceKey('ip-replace-service');
-      await apiKeysService.updateAllowedIPs('ip-replace-service', ['10.0.0.1', '10.0.0.2']);
+      await apiKeysService.updateAllowedIPs('ip-replace-service', [
+        '10.0.0.1',
+        '10.0.0.2',
+      ]);
 
-      await apiKeysService.updateAllowedIPs('ip-replace-service', ['192.168.1.1']);
+      await apiKeysService.updateAllowedIPs('ip-replace-service', [
+        '192.168.1.1',
+      ]);
 
-      const stored = await ServiceApiKeyModel.findOne({ serviceName: 'ip-replace-service' }).lean();
+      const stored = await ServiceApiKeyModel.findOne({
+        serviceName: 'ip-replace-service',
+      }).lean();
       expect(stored?.allowedIPs).toEqual(['192.168.1.1']);
       expect(stored?.allowedIPs).toHaveLength(1);
     });
@@ -165,7 +181,8 @@ describe('ApiKeysService', () => {
     });
 
     it('should include allowedIPs in authenticateApiKey response', async () => {
-      const { rawKey } = await apiKeysService.createServiceKey('auth-ip-service');
+      const { rawKey } =
+        await apiKeysService.createServiceKey('auth-ip-service');
       await apiKeysService.updateAllowedIPs('auth-ip-service', ['203.0.113.5']);
 
       const client = await apiKeysService.authenticateApiKey(rawKey);
@@ -173,9 +190,68 @@ describe('ApiKeysService', () => {
     });
 
     it('should return empty allowedIPs by default for new keys', async () => {
-      const { rawKey } = await apiKeysService.createServiceKey('default-ip-service');
+      const { rawKey } =
+        await apiKeysService.createServiceKey('default-ip-service');
       const client = await apiKeysService.authenticateApiKey(rawKey);
       expect(client.allowedIPs).toEqual([]);
+    });
+  });
+
+  describe('rate limit overrides', () => {
+    it('should set a per-key rate limit override', async () => {
+      await apiKeysService.createServiceKey('rate-limit-service');
+
+      const updated = await apiKeysService.updateRateLimitPerMinute(
+        'rate-limit-service',
+        750,
+      );
+
+      expect(updated.rateLimitPerMinute).toBe(750);
+      expect(updated.effectiveRateLimitPerMinute).toBe(750);
+
+      const stored = await ServiceApiKeyModel.findOne({
+        serviceName: 'rate-limit-service',
+      }).lean();
+      expect(stored?.rateLimitPerMinute).toBe(750);
+    });
+
+    it('should clear a per-key rate limit override', async () => {
+      await apiKeysService.createServiceKey('rate-limit-clear-service');
+      await apiKeysService.updateRateLimitPerMinute(
+        'rate-limit-clear-service',
+        300,
+      );
+
+      const updated = await apiKeysService.clearRateLimitPerMinute(
+        'rate-limit-clear-service',
+      );
+
+      expect(updated.rateLimitPerMinute).toBeNull();
+      expect(updated.effectiveRateLimitPerMinute).toBe(500);
+
+      const stored = await ServiceApiKeyModel.findOne({
+        serviceName: 'rate-limit-clear-service',
+      }).lean();
+      expect(stored?.rateLimitPerMinute).toBeUndefined();
+    });
+
+    it('should include the override in authenticateApiKey response when present', async () => {
+      const { rawKey } = await apiKeysService.createServiceKey(
+        'rate-limit-auth-service',
+      );
+      await apiKeysService.updateRateLimitPerMinute(
+        'rate-limit-auth-service',
+        120,
+      );
+
+      const client = await apiKeysService.authenticateApiKey(rawKey);
+      expect(client.effectiveRateLimitPerMinute).toBe(120);
+    });
+
+    it('should throw 404 when updating rate limit for a non-existent service', async () => {
+      await expect(
+        apiKeysService.updateRateLimitPerMinute('ghost-service', 100),
+      ).rejects.toMatchObject({ status: 404 });
     });
   });
 });
