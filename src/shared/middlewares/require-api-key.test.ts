@@ -20,6 +20,7 @@ const validClient = {
   serviceName: 'test-service',
   status: 'active' as const,
   allowedIPs: [],
+  effectiveRateLimitPerMinute: 500,
 };
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -53,7 +54,9 @@ describe('createRequireApiKey middleware', () => {
   });
 
   it('calls next with the authenticate error when auth fails', async () => {
-    const authenticate = vi.fn().mockRejectedValue({ status: 401, message: 'Invalid API key' });
+    const authenticate = vi
+      .fn()
+      .mockRejectedValue({ status: 401, message: 'Invalid API key' });
     const middleware = createRequireApiKey(authenticate);
     await middleware(makeReq(), mockRes, next);
 
@@ -72,7 +75,9 @@ describe('createRequireApiKey middleware', () => {
   });
 
   it('allows request when allowedIPs is empty (all IPs permitted)', async () => {
-    const authenticate = vi.fn().mockResolvedValue({ ...validClient, allowedIPs: [] });
+    const authenticate = vi
+      .fn()
+      .mockResolvedValue({ ...validClient, allowedIPs: [] });
     const req = makeReq({ ip: '203.0.113.99' });
     const middleware = createRequireApiKey(authenticate);
     await middleware(req, mockRes, next);

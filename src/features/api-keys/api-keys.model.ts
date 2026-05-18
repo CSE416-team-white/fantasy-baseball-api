@@ -31,6 +31,11 @@ const serviceApiKeySchema = new Schema<ServiceApiKey>(
       type: [String],
       default: [],
     },
+    rateLimitPerMinute: {
+      type: Number,
+      min: 1,
+      required: false,
+    },
   },
   {
     timestamps: true,
