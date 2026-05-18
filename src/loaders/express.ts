@@ -1,6 +1,5 @@
 import express, { type Express, Router } from 'express';
 import cors from 'cors';
-import rateLimit from 'express-rate-limit';
 import swaggerUi from 'swagger-ui-express';
 import { errorHandler } from '../shared/middlewares/error-handler.js';
 import { swaggerSpec } from '../config/swagger.js';
@@ -13,29 +12,46 @@ import notificationsRoutes from '../features/notifications/notifications.routes.
 import { createRequireApiKey } from '../shared/middlewares/require-api-key.js';
 import { apiKeysService } from '../features/api-keys/api-keys.service.js';
 import { env } from '../config/env.js';
+import { createRateLimitMiddleware } from '../shared/middlewares/rate-limit.js';
+
+function createNoopMiddleware(): express.RequestHandler {
+  return (
+    _req: express.Request,
+    _res: express.Response,
+    next: express.NextFunction,
+  ) => next();
+}
+
+function createPerKeyRateLimiter(): express.RequestHandler {
+  return createRateLimitMiddleware({
+    windowMs: 60 * 1000,
+    limit: (req) =>
+      req.apiClient?.effectiveRateLimitPerMinute ??
+      env.apiKeyRateLimitPerMinute,
+    keyGenerator: (req) => req.apiClient?.keyId || 'missing-api-client',
+    message: { message: 'Too many requests, please try again later.' },
+  });
+}
 
 export function loadExpress(app: Express): void {
   const requireApiKey = createRequireApiKey(
     apiKeysService.authenticateApiKey.bind(apiKeysService),
   );
   const apiKeyMiddleware = env.disableApiKeyAuth
-    ? (
-        _req: express.Request,
-        _res: express.Response,
-        next: express.NextFunction,
-      ) => next()
+    ? createNoopMiddleware()
     : requireApiKey;
+  const perKeyRateLimitMiddleware = env.disableApiKeyAuth
+    ? createNoopMiddleware()
+    : createPerKeyRateLimiter();
 
   app.use(cors());
   app.use(express.json());
 
   // Global rate limit: 200 requests per minute per IP
   app.use(
-    rateLimit({
+    createRateLimitMiddleware({
       windowMs: 60 * 1000,
-      max: 200,
-      standardHeaders: true,
-      legacyHeaders: false,
+      limit: 200,
       message: { message: 'Too many requests, please try again later.' },
     }),
   );
@@ -43,12 +59,12 @@ export function loadExpress(app: Express): void {
   // Stricter limit on the public registration endpoint: 10 per hour per IP
   app.use(
     '/api/register',
-    rateLimit({
+    createRateLimitMiddleware({
       windowMs: 60 * 60 * 1000,
-      max: 10,
-      standardHeaders: true,
-      legacyHeaders: false,
-      message: { message: 'Too many registration attempts, please try again later.' },
+      limit: 10,
+      message: {
+        message: 'Too many registration attempts, please try again later.',
+      },
     }),
   );
 
@@ -87,9 +103,24 @@ export function loadExpress(app: Express): void {
 
   // Feature routes
   app.use('/api/api-keys', apiKeyMiddleware, apiKeysRoutes);
-  app.use('/api/players', apiKeyMiddleware, playersRoutes);
-  app.use('/api/leagues', apiKeyMiddleware, leaguesRoutes);
-  app.use('/api/valuations', apiKeyMiddleware, valuationsRoutes);
+  app.use(
+    '/api/players',
+    apiKeyMiddleware,
+    perKeyRateLimitMiddleware,
+    playersRoutes,
+  );
+  app.use(
+    '/api/leagues',
+    apiKeyMiddleware,
+    perKeyRateLimitMiddleware,
+    leaguesRoutes,
+  );
+  app.use(
+    '/api/valuations',
+    apiKeyMiddleware,
+    perKeyRateLimitMiddleware,
+    valuationsRoutes,
+  );
   app.use('/api', apiKeyMiddleware, notificationsRoutes);
 
   app.use(errorHandler);
