@@ -23,7 +23,7 @@ export default [
       ...tsPlugin.configs.recommended.rules,
       '@typescript-eslint/no-unused-vars': [
         'warn',
-        { argsIgnorePattern: '^_' },
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
       '@typescript-eslint/no-explicit-any': 'warn',
     },

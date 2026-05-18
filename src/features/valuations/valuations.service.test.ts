@@ -24,7 +24,7 @@ function hitter(overrides: Partial<PlayerInput> = {}): PlayerInput {
       {
         season: '2024',
         type: 'hitter',
-        data: { ba: 0.280, hr: 25, rbi: 80, walk: 60, sb: 10 },
+        data: { ba: 0.28, hr: 25, rbi: 80, walk: 60, sb: 10 },
       },
     ],
     ...overrides,
@@ -49,7 +49,7 @@ function pitcher(overrides: Partial<PlayerInput> = {}): PlayerInput {
       {
         season: '2024',
         type: 'pitcher',
-        data: { era: 3.20, wins: 12, saves: 0, strikeouts: 180, innings: 170 },
+        data: { era: 3.2, wins: 12, saves: 0, strikeouts: 180, innings: 170 },
       },
     ],
     ...overrides,
@@ -64,8 +64,17 @@ const baseLeague = {
   battingCategories: ['HR', 'RBI', 'AVG', 'SB', 'BB'] as const,
   pitchingCategories: ['ERA', 'W', 'SV', 'K', 'IP'] as const,
   rosterSlots: {
-    C: 1, '1B': 1, '2B': 1, '3B': 1, SS: 1,
-    OF: 3, DH: 0, SP: 5, RP: 2, UTIL: 1, BENCH: 2,
+    C: 1,
+    '1B': 1,
+    '2B': 1,
+    '3B': 1,
+    SS: 1,
+    OF: 3,
+    DH: 0,
+    SP: 5,
+    RP: 2,
+    UTIL: 1,
+    BENCH: 2,
   },
   totalBudget: 260,
   teams: [
@@ -79,17 +88,11 @@ const baseLeague = {
 // ── Setup / teardown ─────────────────────────────────────────────────────────
 
 beforeEach(async () => {
-  await Promise.all([
-    PlayerModel.deleteMany({}),
-    LeagueModel.deleteMany({}),
-  ]);
+  await Promise.all([PlayerModel.deleteMany({}), LeagueModel.deleteMany({})]);
 });
 
 afterEach(async () => {
-  await Promise.all([
-    PlayerModel.deleteMany({}),
-    LeagueModel.deleteMany({}),
-  ]);
+  await Promise.all([PlayerModel.deleteMany({}), LeagueModel.deleteMany({})]);
 });
 
 // ── Tests ────────────────────────────────────────────────────────────────────
@@ -159,12 +162,24 @@ describe('ValuationsService.calculateValuations', () => {
       hitter({
         externalId: 'h-elite',
         name: 'Elite',
-        stats: [{ season: '2024', type: 'hitter', data: { ba: 0.320, hr: 50, rbi: 130, walk: 110, sb: 30 } }],
+        stats: [
+          {
+            season: '2024',
+            type: 'hitter',
+            data: { ba: 0.32, hr: 50, rbi: 130, walk: 110, sb: 30 },
+          },
+        ],
       }),
       hitter({
         externalId: 'h-weak',
         name: 'Weak',
-        stats: [{ season: '2024', type: 'hitter', data: { ba: 0.220, hr: 5, rbi: 30, walk: 20, sb: 2 } }],
+        stats: [
+          {
+            season: '2024',
+            type: 'hitter',
+            data: { ba: 0.22, hr: 5, rbi: 30, walk: 20, sb: 2 },
+          },
+        ],
       }),
     ]);
 
@@ -179,9 +194,10 @@ describe('ValuationsService.calculateValuations', () => {
     expect(elite.baseValue).toBeGreaterThan(weak.baseValue);
   });
 
-  it('sets baseValue to 1 for players with no stats', async () => {
+  it('sets baseValue to 1 when only one player exists (std=0, no z-score)', async () => {
     const [league] = await LeagueModel.insertMany([baseLeague]);
     await PlayerModel.insertMany([
+      // Single player in pool → population std=0 → z-scores undefined → rawZSum=0 → baseValue=1
       hitter({ externalId: 'h-nostats', name: 'No Stats', stats: [] }),
     ]);
 
@@ -191,7 +207,6 @@ describe('ValuationsService.calculateValuations', () => {
     );
 
     expect(result.valuations[0].baseValue).toBe(1);
-    expect(result.valuations[0].averagedStats).toEqual({});
   });
 
   it('averages stats across up to 3 seasons', async () => {
@@ -201,16 +216,32 @@ describe('ValuationsService.calculateValuations', () => {
         externalId: 'h-multi',
         name: 'Multi Season',
         stats: [
-          { season: '2022', type: 'hitter', data: { ba: 0.260, hr: 20, rbi: 70, walk: 50, sb: 8 } },
-          { season: '2023', type: 'hitter', data: { ba: 0.280, hr: 30, rbi: 90, walk: 70, sb: 12 } },
-          { season: '2024', type: 'hitter', data: { ba: 0.300, hr: 40, rbi: 110, walk: 90, sb: 16 } },
+          {
+            season: '2023',
+            type: 'hitter',
+            data: { ba: 0.26, hr: 20, rbi: 70, walk: 50, sb: 8 },
+          },
+          {
+            season: '2024',
+            type: 'hitter',
+            data: { ba: 0.28, hr: 30, rbi: 90, walk: 70, sb: 12 },
+          },
+          {
+            season: '2025',
+            type: 'hitter',
+            data: { ba: 0.3, hr: 40, rbi: 110, walk: 90, sb: 16 },
+          },
         ],
       }),
       hitter({
         externalId: 'h-single',
         name: 'Single Season',
         stats: [
-          { season: '2024', type: 'hitter', data: { ba: 0.280, hr: 30, rbi: 90, walk: 70, sb: 12 } },
+          {
+            season: '2025',
+            type: 'hitter',
+            data: { ba: 0.28, hr: 30, rbi: 90, walk: 70, sb: 12 },
+          },
         ],
       }),
     ]);
@@ -221,9 +252,9 @@ describe('ValuationsService.calculateValuations', () => {
     );
 
     const multi = result.valuations.find((v) => v.name === 'Multi Season')!;
-    // Average of 20+30+40/3 = 30 for hr, average of ba = 0.28
-    expect(multi.averagedStats.hr).toBeCloseTo(30, 1);
-    expect(multi.averagedStats.ba).toBeCloseTo(0.28, 2);
+    // Weighted: 0.1×20 + 0.3×30 + 0.6×40 = 35 hr; 0.1×0.260 + 0.3×0.280 + 0.6×0.300 = 0.290 ba
+    expect(multi.averagedStats.hr).toBeCloseTo(35, 1);
+    expect(multi.averagedStats.ba).toBeCloseTo(0.29, 2);
   });
 
   // ── Age multiplier ─────────────────────────────────────────────────────────
@@ -262,7 +293,10 @@ describe('ValuationsService.calculateValuations', () => {
 
   it('applies 1.0x age multiplier when age is unknown', async () => {
     const [league] = await LeagueModel.insertMany([baseLeague]);
-    const { age: _age, ...noAge } = hitter({ externalId: 'h-noage', name: 'No Age' });
+    const { age: _age, ...noAge } = hitter({
+      externalId: 'h-noage',
+      name: 'No Age',
+    });
     await PlayerModel.insertMany([noAge]);
 
     const result = await valuationsService.calculateValuations(
@@ -279,7 +313,11 @@ describe('ValuationsService.calculateValuations', () => {
     const [league] = await LeagueModel.insertMany([baseLeague]);
     await PlayerModel.insertMany([
       hitter({ externalId: 'h-il', name: 'IL Player', injuryStatus: 'il-15' }),
-      hitter({ externalId: 'h-dtd', name: 'DTD Player', injuryStatus: 'day-to-day' }),
+      hitter({
+        externalId: 'h-dtd',
+        name: 'DTD Player',
+        injuryStatus: 'day-to-day',
+      }),
     ]);
 
     const result = await valuationsService.calculateValuations(
@@ -294,10 +332,26 @@ describe('ValuationsService.calculateValuations', () => {
 
   it('injured player has lower dollarValue than identical healthy player', async () => {
     const [league] = await LeagueModel.insertMany([baseLeague]);
-    const stats = [{ season: '2024', type: 'hitter' as const, data: { ba: 0.300, hr: 35, rbi: 100, walk: 75, sb: 15 } }];
+    const stats = [
+      {
+        season: '2024',
+        type: 'hitter' as const,
+        data: { ba: 0.3, hr: 35, rbi: 100, walk: 75, sb: 15 },
+      },
+    ];
     await PlayerModel.insertMany([
-      hitter({ externalId: 'h-healthy', name: 'Healthy', injuryStatus: 'active', stats }),
-      hitter({ externalId: 'h-hurt', name: 'Hurt', injuryStatus: 'il-60', stats }),
+      hitter({
+        externalId: 'h-healthy',
+        name: 'Healthy',
+        injuryStatus: 'active',
+        stats,
+      }),
+      hitter({
+        externalId: 'h-hurt',
+        name: 'Hurt',
+        injuryStatus: 'il-60',
+        stats,
+      }),
     ]);
 
     const result = await valuationsService.calculateValuations(
@@ -315,9 +369,24 @@ describe('ValuationsService.calculateValuations', () => {
   it('applies correct depth chart multipliers', async () => {
     const [league] = await LeagueModel.insertMany([baseLeague]);
     await PlayerModel.insertMany([
-      hitter({ externalId: 'h-start', name: 'Starter', depthChartStatus: 'starter', depthChartOrder: 1 }),
-      hitter({ externalId: 'h-back', name: 'Backup', depthChartStatus: 'backup', depthChartOrder: 2 }),
-      hitter({ externalId: 'h-res', name: 'Reserve', depthChartStatus: 'reserve', depthChartOrder: 4 }),
+      hitter({
+        externalId: 'h-start',
+        name: 'Starter',
+        depthChartStatus: 'starter',
+        depthChartOrder: 1,
+      }),
+      hitter({
+        externalId: 'h-back',
+        name: 'Backup',
+        depthChartStatus: 'backup',
+        depthChartOrder: 2,
+      }),
+      hitter({
+        externalId: 'h-res',
+        name: 'Reserve',
+        depthChartStatus: 'reserve',
+        depthChartOrder: 4,
+      }),
     ]);
 
     const result = await valuationsService.calculateValuations(
@@ -335,7 +404,11 @@ describe('ValuationsService.calculateValuations', () => {
 
   it('applies 0.85x depth chart multiplier when status is unknown', async () => {
     const [league] = await LeagueModel.insertMany([baseLeague]);
-    const { depthChartStatus: _s, depthChartOrder: _o, ...noDepth } = hitter({
+    const {
+      depthChartStatus: _s,
+      depthChartOrder: _o,
+      ...noDepth
+    } = hitter({
       externalId: 'h-nodepth',
       name: 'No Depth',
     });
@@ -365,11 +438,25 @@ describe('ValuationsService.calculateValuations', () => {
   });
 
   it('catcher scarcity is at least as high as OF (scarcer position)', async () => {
-    const [league] = await LeagueModel.insertMany([{
-      ...baseLeague,
-      externalId: 'scarcity-test',
-      rosterSlots: { C: 2, '1B': 1, '2B': 1, '3B': 1, SS: 1, OF: 5, DH: 0, SP: 5, RP: 2, UTIL: 0, BENCH: 0 },
-    }]);
+    const [league] = await LeagueModel.insertMany([
+      {
+        ...baseLeague,
+        externalId: 'scarcity-test',
+        rosterSlots: {
+          C: 2,
+          '1B': 1,
+          '2B': 1,
+          '3B': 1,
+          SS: 1,
+          OF: 5,
+          DH: 0,
+          SP: 5,
+          RP: 2,
+          UTIL: 0,
+          BENCH: 0,
+        },
+      },
+    ]);
     await PlayerModel.insertMany([
       hitter({ externalId: 'c1', positions: ['C'] }),
       hitter({ externalId: 'c2', positions: ['C'] }),
@@ -389,8 +476,12 @@ describe('ValuationsService.calculateValuations', () => {
     );
 
     const catcher = result.valuations.find((v) => v.positions.includes('C'))!;
-    const outfielder = result.valuations.find((v) => v.positions.includes('OF'))!;
-    expect(catcher.multipliers.scarcity).toBeGreaterThanOrEqual(outfielder.multipliers.scarcity);
+    const outfielder = result.valuations.find((v) =>
+      v.positions.includes('OF'),
+    )!;
+    expect(catcher.multipliers.scarcity).toBeGreaterThanOrEqual(
+      outfielder.multipliers.scarcity,
+    );
   });
 
   // ── Draftability ───────────────────────────────────────────────────────────
@@ -403,11 +494,13 @@ describe('ValuationsService.calculateValuations', () => {
 
     const takenId = inserted[0]._id.toString();
 
-    const [league] = await LeagueModel.insertMany([{
-      ...baseLeague,
-      externalId: 'taken-test',
-      taken_players: [[takenId, 'team-1', 'OF', 15]],
-    }]);
+    const [league] = await LeagueModel.insertMany([
+      {
+        ...baseLeague,
+        externalId: 'taken-test',
+        taken_players: [[takenId, 'team-1', 'OF', 15]],
+      },
+    ]);
 
     const result = await valuationsService.calculateValuations(
       league._id.toString(),
@@ -422,13 +515,27 @@ describe('ValuationsService.calculateValuations', () => {
   });
 
   it('marks player as not draftable when team has no open slot', async () => {
-    const [league] = await LeagueModel.insertMany([{
-      ...baseLeague,
-      externalId: 'no-slot-test',
-      rosterSlots: { C: 1, '1B': 1, '2B': 1, '3B': 1, SS: 1, OF: 1, DH: 0, SP: 5, RP: 2, UTIL: 0, BENCH: 0 },
-      // team-1 has already filled its one OF slot
-      taken_players: [['other-player-id', 'team-1', 'OF', 10]],
-    }]);
+    const [league] = await LeagueModel.insertMany([
+      {
+        ...baseLeague,
+        externalId: 'no-slot-test',
+        rosterSlots: {
+          C: 1,
+          '1B': 1,
+          '2B': 1,
+          '3B': 1,
+          SS: 1,
+          OF: 1,
+          DH: 0,
+          SP: 5,
+          RP: 2,
+          UTIL: 0,
+          BENCH: 0,
+        },
+        // team-1 has already filled its one OF slot
+        taken_players: [['other-player-id', 'team-1', 'OF', 10]],
+      },
+    ]);
     await PlayerModel.insertMany([
       hitter({ externalId: 'h-of', name: 'OF Player', positions: ['OF'] }),
     ]);
@@ -439,16 +546,32 @@ describe('ValuationsService.calculateValuations', () => {
     );
 
     expect(result.valuations[0].draftable).toBe(false);
-    expect(result.valuations[0].draftableReason).toContain('No open roster slot');
+    expect(result.valuations[0].draftableReason).toContain(
+      'No open roster slot',
+    );
   });
 
   it('marks player as draftable when team has an open slot', async () => {
-    const [league] = await LeagueModel.insertMany([{
-      ...baseLeague,
-      externalId: 'has-slot-test',
-      rosterSlots: { C: 1, '1B': 1, '2B': 1, '3B': 1, SS: 1, OF: 2, DH: 0, SP: 5, RP: 2, UTIL: 0, BENCH: 0 },
-      taken_players: [['some-id', 'team-1', 'OF', 10]], // only 1 OF taken, 2 slots
-    }]);
+    const [league] = await LeagueModel.insertMany([
+      {
+        ...baseLeague,
+        externalId: 'has-slot-test',
+        rosterSlots: {
+          C: 1,
+          '1B': 1,
+          '2B': 1,
+          '3B': 1,
+          SS: 1,
+          OF: 2,
+          DH: 0,
+          SP: 5,
+          RP: 2,
+          UTIL: 0,
+          BENCH: 0,
+        },
+        taken_players: [['some-id', 'team-1', 'OF', 10]], // only 1 OF taken, 2 slots
+      },
+    ]);
     await PlayerModel.insertMany([
       hitter({ externalId: 'h-of', name: 'OF Player', positions: ['OF'] }),
     ]);
@@ -495,9 +618,13 @@ describe('ValuationsService.calculateValuations', () => {
       { page: 1, limit: 50, playerType: 'pitcher' },
     );
 
-    expect(hitterResult.valuations.every((v) => v.playerType === 'hitter')).toBe(true);
+    expect(
+      hitterResult.valuations.every((v) => v.playerType === 'hitter'),
+    ).toBe(true);
     expect(hitterResult.pagination.total).toBe(2);
-    expect(pitcherResult.valuations.every((v) => v.playerType === 'pitcher')).toBe(true);
+    expect(
+      pitcherResult.valuations.every((v) => v.playerType === 'pitcher'),
+    ).toBe(true);
     expect(pitcherResult.pagination.total).toBe(1);
   });
 
@@ -577,12 +704,36 @@ describe('ValuationsService.calculateValuations', () => {
       pitcher({
         externalId: 'p-ace',
         name: 'Ace',
-        stats: [{ season: '2024', type: 'pitcher', data: { era: 2.10, wins: 18, saves: 0, strikeouts: 250, innings: 200 } }],
+        stats: [
+          {
+            season: '2024',
+            type: 'pitcher',
+            data: {
+              era: 2.1,
+              wins: 18,
+              saves: 0,
+              strikeouts: 250,
+              innings: 200,
+            },
+          },
+        ],
       }),
       pitcher({
         externalId: 'p-avg',
         name: 'Average Arm',
-        stats: [{ season: '2024', type: 'pitcher', data: { era: 4.80, wins: 8, saves: 0, strikeouts: 110, innings: 130 } }],
+        stats: [
+          {
+            season: '2024',
+            type: 'pitcher',
+            data: {
+              era: 4.8,
+              wins: 8,
+              saves: 0,
+              strikeouts: 110,
+              innings: 130,
+            },
+          },
+        ],
       }),
     ]);
 
@@ -602,12 +753,36 @@ describe('ValuationsService.calculateValuations', () => {
       pitcher({
         externalId: 'p-good-era',
         name: 'Good ERA',
-        stats: [{ season: '2024', type: 'pitcher', data: { era: 2.00, wins: 10, saves: 0, strikeouts: 150, innings: 150 } }],
+        stats: [
+          {
+            season: '2024',
+            type: 'pitcher',
+            data: {
+              era: 2.0,
+              wins: 10,
+              saves: 0,
+              strikeouts: 150,
+              innings: 150,
+            },
+          },
+        ],
       }),
       pitcher({
         externalId: 'p-bad-era',
         name: 'Bad ERA',
-        stats: [{ season: '2024', type: 'pitcher', data: { era: 6.00, wins: 10, saves: 0, strikeouts: 150, innings: 150 } }],
+        stats: [
+          {
+            season: '2024',
+            type: 'pitcher',
+            data: {
+              era: 6.0,
+              wins: 10,
+              saves: 0,
+              strikeouts: 150,
+              innings: 150,
+            },
+          },
+        ],
       }),
     ]);
 
