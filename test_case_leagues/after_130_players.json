@@ -1,0 +1,2525 @@
+{
+  "name": "After 130 Players Have Been Taken",
+  "format": "roto",
+  "draftType": "auction",
+  "leagueType": "MLB",
+  "battingCategories": ["R", "HR", "RBI", "SB", "AVG"],
+  "pitchingCategories": ["W", "SV", "K", "ERA", "WHIP"],
+  "rosterSlots": {
+    "C": 2,
+    "1B": 1,
+    "2B": 1,
+    "3B": 1,
+    "SS": 1,
+    "CI": 1,
+    "MI": 1,
+    "OF": 5,
+    "SP": 0,
+    "RP": 0,
+    "UTIL": 1,
+    "P": 9,
+    "BENCH": 0
+  },
+  "totalBudget": 260,
+  "minorLeagueSlotsPerTeam": 8,
+  "teams": [
+    {
+      "name": "Team A",
+      "budget": 0
+    },
+    {
+      "name": "Team B",
+      "budget": 0
+    },
+    {
+      "name": "Team C",
+      "budget": 3
+    },
+    {
+      "name": "Team D",
+      "budget": 1
+    },
+    {
+      "name": "Team E",
+      "budget": 3
+    },
+    {
+      "name": "Team F",
+      "budget": 16
+    },
+    {
+      "name": "Team G",
+      "budget": 1
+    },
+    {
+      "name": "Team H",
+      "budget": 0
+    },
+    {
+      "name": "Team I",
+      "budget": 1
+    }
+  ],
+  "taken_players": [
+    {
+      "playerName": "Drake Baldwin",
+      "teamName": "Team A",
+      "positionSlot": "C-0",
+      "price": 5,
+      "contract": "F1"
+    },
+    {
+      "playerName": "Xavier Edwards",
+      "teamName": "Team A",
+      "positionSlot": "2B-0",
+      "price": 23,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Alec Burleson",
+      "teamName": "Team A",
+      "positionSlot": "OF-0",
+      "price": 15,
+      "contract": "F3"
+    },
+    {
+      "playerName": "Shota Imanaga",
+      "teamName": "Team A",
+      "positionSlot": "P-0",
+      "price": 10,
+      "contract": "F2"
+    },
+    {
+      "playerName": "Cade Horton",
+      "teamName": "Team A",
+      "positionSlot": "P-1",
+      "price": 5,
+      "contract": "F1"
+    },
+    {
+      "playerName": "Brandon Pfaadt",
+      "teamName": "Team A",
+      "positionSlot": "P-2",
+      "price": 15,
+      "contract": "F3"
+    },
+    {
+      "playerName": "Jacob Misiorowski",
+      "teamName": "Team A",
+      "positionSlot": "P-3",
+      "price": 5,
+      "contract": "F1"
+    },
+    {
+      "playerName": "Jeferson Quero",
+      "teamName": "Team A",
+      "positionSlot": "MiLB-0",
+      "price": 0
+    },
+    {
+      "playerName": "Edwin Arroyo",
+      "teamName": "Team A",
+      "positionSlot": "MiLB-1",
+      "price": 0
+    },
+    {
+      "playerName": "Kevin Alcantara",
+      "teamName": "Team A",
+      "positionSlot": "MiLB-5",
+      "price": 0
+    },
+    {
+      "playerName": "Robby Snelling",
+      "teamName": "Team A",
+      "positionSlot": "MiLB-7",
+      "price": 0
+    },
+    {
+      "playerName": "Francisco Alvarez",
+      "teamName": "Team B",
+      "positionSlot": "C-0",
+      "price": 10,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Spencer Horwitz",
+      "teamName": "Team B",
+      "positionSlot": "1B-0",
+      "price": 3,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Ronny Mauricio",
+      "teamName": "Team B",
+      "positionSlot": "3B-0",
+      "price": 5,
+      "contract": "F1"
+    },
+    {
+      "playerName": "CJ Abrams",
+      "teamName": "Team B",
+      "positionSlot": "SS-0",
+      "price": 20,
+      "contract": "X"
+    },
+    {
+      "playerName": "Jackson Merrill",
+      "teamName": "Team B",
+      "positionSlot": "OF-0",
+      "price": 10,
+      "contract": "F2"
+    },
+    {
+      "playerName": "Michael Harris II",
+      "teamName": "Team B",
+      "positionSlot": "OF-1",
+      "price": 20,
+      "contract": "X"
+    },
+    {
+      "playerName": "Sandy Alcantara",
+      "teamName": "Team B",
+      "positionSlot": "P-0",
+      "price": 1,
+      "contract": "X"
+    },
+    {
+      "playerName": "Michael King",
+      "teamName": "Team B",
+      "positionSlot": "P-1",
+      "price": 16,
+      "contract": "X"
+    },
+    {
+      "playerName": "Spencer Strider",
+      "teamName": "Team B",
+      "positionSlot": "P-2",
+      "price": 16,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Yoshinobu Yamamoto",
+      "teamName": "Team B",
+      "positionSlot": "P-3",
+      "price": 10,
+      "contract": "F2"
+    },
+    {
+      "playerName": "Esmerlyn Valdez",
+      "teamName": "Team B",
+      "positionSlot": "MiLB-3",
+      "price": 0
+    },
+    {
+      "playerName": "Moises Ballesteros",
+      "teamName": "Team B",
+      "positionSlot": "MiLB-4",
+      "price": 0
+    },
+    {
+      "playerName": "Hunter Goodman",
+      "teamName": "Team C",
+      "positionSlot": "C-0",
+      "price": 1,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Gabriel Moreno",
+      "teamName": "Team C",
+      "positionSlot": "C-1",
+      "price": 10,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Brice Turang",
+      "teamName": "Team C",
+      "positionSlot": "2B-0",
+      "price": 7,
+      "contract": "L2"
+    },
+    {
+      "playerName": "Trea Turner",
+      "teamName": "Team C",
+      "positionSlot": "SS-0",
+      "price": 34,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Corbin Carroll",
+      "teamName": "Team C",
+      "positionSlot": "OF-0",
+      "price": 15,
+      "contract": "F3"
+    },
+    {
+      "playerName": "Pete Crow-Armstrong",
+      "teamName": "Team C",
+      "positionSlot": "OF-1",
+      "price": 10,
+      "contract": "F2"
+    },
+    {
+      "playerName": "Jordan Walker",
+      "teamName": "Team C",
+      "positionSlot": "OF-2",
+      "price": 1,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Matthew Boyd",
+      "teamName": "Team C",
+      "positionSlot": "P-0",
+      "price": 1,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Brandon Woodruff",
+      "teamName": "Team C",
+      "positionSlot": "P-1",
+      "price": 4,
+      "contract": "S1"
+    },
+    {
+      "playerName": "James Triantos",
+      "teamName": "Team C",
+      "positionSlot": "MiLB-0",
+      "price": 0
+    },
+    {
+      "playerName": "Nico Hoerner",
+      "teamName": "Team D",
+      "positionSlot": "2B-0",
+      "price": 17,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Francisco Lindor",
+      "teamName": "Team D",
+      "positionSlot": "SS-0",
+      "price": 36,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Brandon Marsh",
+      "teamName": "Team D",
+      "positionSlot": "OF-0",
+      "price": 1,
+      "contract": "X"
+    },
+    {
+      "playerName": "James Wood",
+      "teamName": "Team D",
+      "positionSlot": "OF-1",
+      "price": 10,
+      "contract": "F2"
+    },
+    {
+      "playerName": "Mitch Keller",
+      "teamName": "Team D",
+      "positionSlot": "P-0",
+      "price": 7,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Raisel Iglesias",
+      "teamName": "Team D",
+      "positionSlot": "P-1",
+      "price": 18,
+      "contract": "X"
+    },
+    {
+      "playerName": "Harry Ford",
+      "teamName": "Team D",
+      "positionSlot": "MiLB-0",
+      "price": 0
+    },
+    {
+      "playerName": "Cooper Pratt",
+      "teamName": "Team D",
+      "positionSlot": "MiLB-1",
+      "price": 0
+    },
+    {
+      "playerName": "Bubba Chandler",
+      "teamName": "Team D",
+      "positionSlot": "MiLB-2",
+      "price": 0
+    },
+    {
+      "playerName": "Nolan McLean",
+      "teamName": "Team D",
+      "positionSlot": "MiLB-3",
+      "price": 0
+    },
+    {
+      "playerName": "Geraldo Perdomo",
+      "teamName": "Team E",
+      "positionSlot": "SS-0",
+      "price": 1,
+      "contract": "X"
+    },
+    {
+      "playerName": "Juan Soto",
+      "teamName": "Team E",
+      "positionSlot": "OF-0",
+      "price": 47,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Kyle Tucker",
+      "teamName": "Team E",
+      "positionSlot": "OF-1",
+      "price": 44,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Kyle Schwarber",
+      "teamName": "Team E",
+      "positionSlot": "UTIL-0",
+      "price": 23,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Andrew Abbott",
+      "teamName": "Team E",
+      "positionSlot": "P-0",
+      "price": 4,
+      "contract": "X"
+    },
+    {
+      "playerName": "Freddy Peralta",
+      "teamName": "Team E",
+      "positionSlot": "P-1",
+      "price": 25,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Paul Skenes",
+      "teamName": "Team E",
+      "positionSlot": "P-2",
+      "price": 10,
+      "contract": "F2"
+    },
+    {
+      "playerName": "Chase Burns",
+      "teamName": "Team E",
+      "positionSlot": "MiLB-0",
+      "price": 0
+    },
+    {
+      "playerName": "Andrew Painter",
+      "teamName": "Team E",
+      "positionSlot": "MiLB-1",
+      "price": 0
+    },
+    {
+      "playerName": "Rhett Lowder",
+      "teamName": "Team E",
+      "positionSlot": "MiLB-2",
+      "price": 0
+    },
+    {
+      "playerName": "Nolan Arenado",
+      "teamName": "Team F",
+      "positionSlot": "3B-0",
+      "price": 11,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Sal Frelick",
+      "teamName": "Team F",
+      "positionSlot": "OF-0",
+      "price": 15,
+      "contract": "F3"
+    },
+    {
+      "playerName": "Jackson Chourio",
+      "teamName": "Team F",
+      "positionSlot": "OF-1",
+      "price": 10,
+      "contract": "F2"
+    },
+    {
+      "playerName": "Dylan Crews",
+      "teamName": "Team F",
+      "positionSlot": "OF-2",
+      "price": 5,
+      "contract": "F1"
+    },
+    {
+      "playerName": "Reynaldo López",
+      "teamName": "Team F",
+      "positionSlot": "P-0",
+      "price": 4,
+      "contract": "X"
+    },
+    {
+      "playerName": "Michael McGreevy",
+      "teamName": "Team F",
+      "positionSlot": "P-1",
+      "price": 1,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Chris Sale",
+      "teamName": "Team F",
+      "positionSlot": "P-2",
+      "price": 15,
+      "contract": "F3"
+    },
+    {
+      "playerName": "Jameson Taillon",
+      "teamName": "Team F",
+      "positionSlot": "P-3",
+      "price": 1,
+      "contract": "X"
+    },
+    {
+      "playerName": "Brady Singer",
+      "teamName": "Team F",
+      "positionSlot": "P-4",
+      "price": 4,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Joe Mack",
+      "teamName": "Team F",
+      "positionSlot": "MiLB-0",
+      "price": 0
+    },
+    {
+      "playerName": "Roki Sasaki",
+      "teamName": "Team F",
+      "positionSlot": "MiLB-2",
+      "price": 0
+    },
+    {
+      "playerName": "Logan Henderson",
+      "teamName": "Team F",
+      "positionSlot": "MiLB-3",
+      "price": 0
+    },
+    {
+      "playerName": "Jonah Tong",
+      "teamName": "Team F",
+      "positionSlot": "MiLB-4",
+      "price": 0
+    },
+    {
+      "playerName": "Michael Busch",
+      "teamName": "Team G",
+      "positionSlot": "1B-0",
+      "price": 10,
+      "contract": "F2"
+    },
+    {
+      "playerName": "Pavin Smith",
+      "teamName": "Team G",
+      "positionSlot": "CI-0",
+      "price": 1,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Masyn Winn",
+      "teamName": "Team G",
+      "positionSlot": "SS-0",
+      "price": 10,
+      "contract": "F2"
+    },
+    {
+      "playerName": "Ronald Acuña Jr.",
+      "teamName": "Team G",
+      "positionSlot": "OF-0",
+      "price": 31,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Mike Yastrzemski",
+      "teamName": "Team G",
+      "positionSlot": "OF-1",
+      "price": 2,
+      "contract": "X"
+    },
+    {
+      "playerName": "Nick Lodolo",
+      "teamName": "Team G",
+      "positionSlot": "P-0",
+      "price": 7,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Jesús Luzardo",
+      "teamName": "Team G",
+      "positionSlot": "P-1",
+      "price": 1,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Dalton Rushing",
+      "teamName": "Team G",
+      "positionSlot": "MiLB-0",
+      "price": 0
+    },
+    {
+      "playerName": "Sal Stewart",
+      "teamName": "Team G",
+      "positionSlot": "MiLB-1",
+      "price": 0
+    },
+    {
+      "playerName": "Justin Crawford",
+      "teamName": "Team G",
+      "positionSlot": "MiLB-2",
+      "price": 0
+    },
+    {
+      "playerName": "A.J. Ewing",
+      "teamName": "Team G",
+      "positionSlot": "MiLB-6",
+      "price": 0
+    },
+    {
+      "playerName": "Tink Hence",
+      "teamName": "Team G",
+      "positionSlot": "MiLB-7",
+      "price": 0
+    },
+    {
+      "playerName": "Carson Kelly",
+      "teamName": "Team H",
+      "positionSlot": "C-0",
+      "price": 2,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Freddie Freeman",
+      "teamName": "Team H",
+      "positionSlot": "1B-0",
+      "price": 31,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Elly De La Cruz",
+      "teamName": "Team H",
+      "positionSlot": "SS-0",
+      "price": 15,
+      "contract": "F3"
+    },
+    {
+      "playerName": "Dansby Swanson",
+      "teamName": "Team H",
+      "positionSlot": "MI-0",
+      "price": 8,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Jung Hoo Lee",
+      "teamName": "Team H",
+      "positionSlot": "OF-0",
+      "price": 5,
+      "contract": "F1"
+    },
+    {
+      "playerName": "Cade Cavalli",
+      "teamName": "Team H",
+      "positionSlot": "P-0",
+      "price": 5,
+      "contract": "F1"
+    },
+    {
+      "playerName": "Logan Webb",
+      "teamName": "Team H",
+      "positionSlot": "P-1",
+      "price": 28,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Owen Caissie",
+      "teamName": "Team H",
+      "positionSlot": "MiLB-0",
+      "price": 0
+    },
+    {
+      "playerName": "Drew Gilbert",
+      "teamName": "Team H",
+      "positionSlot": "MiLB-4",
+      "price": 0
+    },
+    {
+      "playerName": "Ryan Waldschmidt",
+      "teamName": "Team H",
+      "positionSlot": "MiLB-7",
+      "price": 0
+    },
+    {
+      "playerName": "Agustín Ramírez",
+      "teamName": "Team I",
+      "positionSlot": "C-0",
+      "price": 1,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Manny Machado",
+      "teamName": "Team I",
+      "positionSlot": "3B-0",
+      "price": 33,
+      "contract": "X"
+    },
+    {
+      "playerName": "Willy Adames",
+      "teamName": "Team I",
+      "positionSlot": "SS-0",
+      "price": 11,
+      "contract": "X"
+    },
+    {
+      "playerName": "Victor Scott II",
+      "teamName": "Team I",
+      "positionSlot": "OF-0",
+      "price": 5,
+      "contract": "F1"
+    },
+    {
+      "playerName": "Seiya Suzuki",
+      "teamName": "Team I",
+      "positionSlot": "OF-1",
+      "price": 18,
+      "contract": "X"
+    },
+    {
+      "playerName": "Grant Holmes",
+      "teamName": "Team I",
+      "positionSlot": "P-0",
+      "price": 5,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Cristopher Sánchez",
+      "teamName": "Team I",
+      "positionSlot": "P-1",
+      "price": 9,
+      "contract": "L2"
+    },
+    {
+      "playerName": "Nick Pivetta",
+      "teamName": "Team I",
+      "positionSlot": "P-2",
+      "price": 13,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Robbie Ray",
+      "teamName": "Team I",
+      "positionSlot": "P-3",
+      "price": 15,
+      "contract": "S1"
+    },
+    {
+      "playerName": "Shohei Ohtani",
+      "teamName": "Team I",
+      "positionSlot": "P-4",
+      "price": 46,
+      "contract": "L2"
+    },
+    {
+      "playerName": "Konnor Griffin",
+      "teamName": "Team I",
+      "positionSlot": "MiLB-1",
+      "price": 0
+    },
+    {
+      "playerName": "William Contreras",
+      "teamName": "Team D",
+      "positionSlot": "C-0",
+      "price": 25,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Daylen Lile",
+      "teamName": "Team E",
+      "positionSlot": "OF-2",
+      "price": 12,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Fernando Tatis Jr.",
+      "teamName": "Team H",
+      "positionSlot": "OF-1",
+      "price": 43,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Mookie Betts",
+      "teamName": "Team D",
+      "positionSlot": "MI-0",
+      "price": 28,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Ketel Marte",
+      "teamName": "Team F",
+      "positionSlot": "2B-0",
+      "price": 38,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Marcus Semien",
+      "teamName": "Team F",
+      "positionSlot": "MI-0",
+      "price": 18,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Bryce Harper",
+      "teamName": "Team C",
+      "positionSlot": "1B-0",
+      "price": 36,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Bo Bichette",
+      "teamName": "Team H",
+      "positionSlot": "3B-0",
+      "price": 33,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Ozzie Albies",
+      "teamName": "Team G",
+      "positionSlot": "2B-0",
+      "price": 25,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Eugenio Suarez",
+      "teamName": "Team F",
+      "positionSlot": "CI-0",
+      "price": 25,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Austin Riley",
+      "teamName": "Team G",
+      "positionSlot": "3B-0",
+      "price": 31,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Miguel Rojas",
+      "teamName": "Team F",
+      "positionSlot": "SS-0",
+      "price": 1,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Alex Bregman",
+      "teamName": "Team B",
+      "positionSlot": "CI-0",
+      "price": 26,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Blake Snell",
+      "teamName": "Team C",
+      "positionSlot": "P-2",
+      "price": 11,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Zac Gallen",
+      "teamName": "Team G",
+      "positionSlot": "P-0",
+      "price": 15,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Mason Miller",
+      "teamName": "Team B",
+      "positionSlot": "P-4",
+      "price": 32,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Otto Lopez",
+      "teamName": "Team A",
+      "positionSlot": "SS-0",
+      "price": 13,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Ezequiel Tovar",
+      "teamName": "Team I",
+      "positionSlot": "MI-0",
+      "price": 11,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Matt Chapman",
+      "teamName": "Team A",
+      "positionSlot": "3B-0",
+      "price": 20,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Alec Bohm",
+      "teamName": "Team I",
+      "positionSlot": "1B-0",
+      "price": 11,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Matt Olson",
+      "teamName": "Team A",
+      "positionSlot": "1B-0",
+      "price": 35,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Kyle Stowers",
+      "teamName": "Team C",
+      "positionSlot": "OF-3",
+      "price": 17,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Tyler Glasnow",
+      "teamName": "Team C",
+      "positionSlot": "P-3",
+      "price": 18,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Will Smith",
+      "teamName": "Team D",
+      "positionSlot": "C-1",
+      "price": 18,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Edwin Diaz",
+      "teamName": "Team C",
+      "positionSlot": "P-4",
+      "price": 31,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Luis Garcia",
+      "teamName": "Team B",
+      "positionSlot": "2B-0",
+      "price": 11,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Eury Perez",
+      "teamName": "Team C",
+      "positionSlot": "P-5",
+      "price": 25,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Luis Robert Jr.",
+      "teamName": "Team I",
+      "positionSlot": "OF-2",
+      "price": 27,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Brandon Lowe",
+      "teamName": "Team A",
+      "positionSlot": "MI-0",
+      "price": 18,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Devin Williams",
+      "teamName": "Team A",
+      "positionSlot": "P-4",
+      "price": 18,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Ian Happ",
+      "teamName": "Team A",
+      "positionSlot": "OF-1",
+      "price": 17,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Aaron Nola",
+      "teamName": "Team D",
+      "positionSlot": "P-1",
+      "price": 9,
+      "contract": "S2"
+    },
+    {
+      "playerName": "TJ Friedl",
+      "teamName": "Team D",
+      "positionSlot": "OF-2",
+      "price": 8,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Jhoan Duran",
+      "teamName": "Team B",
+      "positionSlot": "P-6",
+      "price": 30,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Xander Bogaerts",
+      "teamName": "Team E",
+      "positionSlot": "MI-0",
+      "price": 7,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Rafael Devers",
+      "teamName": "Team G",
+      "positionSlot": "UTIL-0",
+      "price": 33,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Merrill Kelly",
+      "teamName": "Team D",
+      "positionSlot": "P-2",
+      "price": 12,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Jorge Polanco",
+      "teamName": "Team G",
+      "positionSlot": "OF-2",
+      "price": 20,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Mickey Moniak",
+      "teamName": "Team F",
+      "positionSlot": "OF-3",
+      "price": 16,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Zack Wheeler",
+      "teamName": "Team D",
+      "positionSlot": "P-3",
+      "price": 21,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Emmet Sheehan",
+      "teamName": "Team H",
+      "positionSlot": "P-2",
+      "price": 20,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Teoscar Hernandez",
+      "teamName": "Team A",
+      "positionSlot": "OF-2",
+      "price": 18,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Daniel Palencia",
+      "teamName": "Team B",
+      "positionSlot": "P-7",
+      "price": 18,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Spencer Steer",
+      "teamName": "Team F",
+      "positionSlot": "1B-0",
+      "price": 16,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Brenton Doyle",
+      "teamName": "Team I",
+      "positionSlot": "OF-3",
+      "price": 14,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Bryson Stott",
+      "teamName": "Team C",
+      "positionSlot": "MI-0",
+      "price": 17,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Joe Musgrove",
+      "teamName": "Team A",
+      "positionSlot": "P-5",
+      "price": 5,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Carlos Santana",
+      "teamName": "Team A",
+      "positionSlot": "CI-0",
+      "price": 5,
+      "contract": "S2"
+    },
+    {
+      "playerName": "J.T. Realmuto",
+      "teamName": "Team F",
+      "positionSlot": "C-0",
+      "price": 7,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Trevor Megill",
+      "teamName": "Team G",
+      "positionSlot": "P-3",
+      "price": 17,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Miguel Amaya",
+      "teamName": "Team E",
+      "positionSlot": "C-0",
+      "price": 2,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Oneil Cruz",
+      "teamName": "Team G",
+      "positionSlot": "OF-3",
+      "price": 29,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Christian Yelich",
+      "teamName": "Team H",
+      "positionSlot": "OF-2",
+      "price": 21,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Luis Arraez",
+      "teamName": "Team D",
+      "positionSlot": "1B-0",
+      "price": 14,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Jakob Marsee",
+      "teamName": "Team I",
+      "positionSlot": "OF-4",
+      "price": 20,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Noelvi Marte",
+      "teamName": "Team A",
+      "positionSlot": "OF-3",
+      "price": 22,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Liam Hicks",
+      "teamName": "Team E",
+      "positionSlot": "C-1",
+      "price": 2,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Hunter Greene",
+      "teamName": "Team H",
+      "positionSlot": "P-3",
+      "price": 4,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Emilio Pagan",
+      "teamName": "Team E",
+      "positionSlot": "P-4",
+      "price": 18,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Ryan O'Hearn",
+      "teamName": "Team F",
+      "positionSlot": "OF-4",
+      "price": 9,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Andy Pages",
+      "teamName": "Team G",
+      "positionSlot": "OF-4",
+      "price": 17,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Bryan Reynolds",
+      "teamName": "Team H",
+      "positionSlot": "OF-3",
+      "price": 16,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Freddy Fermin",
+      "teamName": "Team I",
+      "positionSlot": "C-1",
+      "price": 4,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Matt McLain",
+      "teamName": "Team D",
+      "positionSlot": "UTIL-0",
+      "price": 10,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Ryan Walker",
+      "teamName": "Team E",
+      "positionSlot": "P-5",
+      "price": 9,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Tyler Stephenson",
+      "teamName": "Team F",
+      "positionSlot": "C-1",
+      "price": 7,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Tanner Scott",
+      "teamName": "Team A",
+      "positionSlot": "P-6",
+      "price": 2,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Edward Cabrera",
+      "teamName": "Team B",
+      "positionSlot": "P-8",
+      "price": 11,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Patrick Bailey",
+      "teamName": "Team B",
+      "positionSlot": "C-1",
+      "price": 3,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Heliot Ramos",
+      "teamName": "Team H",
+      "positionSlot": "OF-4",
+      "price": 10,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Adolis Garcia",
+      "teamName": "Team E",
+      "positionSlot": "OF-3",
+      "price": 11,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Andrew Vaughn",
+      "teamName": "Team E",
+      "positionSlot": "1B-0",
+      "price": 17,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Tommy Edman",
+      "teamName": "Team E",
+      "positionSlot": "2B-0",
+      "price": 1,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Matt Svanson",
+      "teamName": "Team F",
+      "positionSlot": "P-5",
+      "price": 8,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Pete Fairbanks",
+      "teamName": "Team F",
+      "positionSlot": "P-6",
+      "price": 10,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Brett Baty",
+      "teamName": "Team H",
+      "positionSlot": "CI-0",
+      "price": 5,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Dennis Santana",
+      "teamName": "Team F",
+      "positionSlot": "P-7",
+      "price": 8,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Tyler Freeman",
+      "teamName": "Team B",
+      "positionSlot": "OF-2",
+      "price": 5,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Ramon Laureano",
+      "teamName": "Team F",
+      "positionSlot": "UTIL-0",
+      "price": 12,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Jordan Beck",
+      "teamName": "Team C",
+      "positionSlot": "OF-4",
+      "price": 8,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Willi Castro",
+      "teamName": "Team C",
+      "positionSlot": "3B-0",
+      "price": 2,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Connor Norby",
+      "teamName": "Team E",
+      "positionSlot": "3B-0",
+      "price": 3,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Joey Wentz",
+      "teamName": "Team H",
+      "positionSlot": "P-4",
+      "price": 2,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Kevin Ginkel",
+      "teamName": "Team F",
+      "positionSlot": "P-8",
+      "price": 3,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Kodai Senga",
+      "teamName": "Team C",
+      "positionSlot": "P-6",
+      "price": 4,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Tyler Mahle",
+      "teamName": "Team I",
+      "positionSlot": "P-5",
+      "price": 2,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Abner Uribe",
+      "teamName": "Team D",
+      "positionSlot": "P-4",
+      "price": 5,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Robert Suarez",
+      "teamName": "Team E",
+      "positionSlot": "P-6",
+      "price": 4,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Ryne Nelson",
+      "teamName": "Team D",
+      "positionSlot": "P-5",
+      "price": 3,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Nolan Gorman",
+      "teamName": "Team H",
+      "positionSlot": "2B-0",
+      "price": 2,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Kyle Karros",
+      "teamName": "Team E",
+      "positionSlot": "CI-0",
+      "price": 1,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Ben Brown",
+      "teamName": "Team A",
+      "positionSlot": "P-7",
+      "price": 1,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Tobias Myers",
+      "teamName": "Team A",
+      "positionSlot": "P-8",
+      "price": 2,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Quinn Priester",
+      "teamName": "Team B",
+      "positionSlot": "P-5",
+      "price": 4,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Lourdes Gurriel Jr.",
+      "teamName": "Team B",
+      "positionSlot": "OF-3",
+      "price": 1,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Matt Shaw",
+      "teamName": "Team D",
+      "positionSlot": "CI-0",
+      "price": 2,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Gavin Sheets",
+      "teamName": "Team A",
+      "positionSlot": "OF-4",
+      "price": 4,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Jake Cronenworth",
+      "teamName": "Team I",
+      "positionSlot": "2B-0",
+      "price": 2,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Eduardo Rodriguez",
+      "teamName": "Team G",
+      "positionSlot": "P-4",
+      "price": 2,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Luis Torrens",
+      "teamName": "Team A",
+      "positionSlot": "C-1",
+      "price": 1,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Sean Manaea",
+      "teamName": "Team D",
+      "positionSlot": "P-6",
+      "price": 2,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Dustin May",
+      "teamName": "Team G",
+      "positionSlot": "P-5",
+      "price": 1,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Jake Mangum",
+      "teamName": "Team B",
+      "positionSlot": "OF-4",
+      "price": 3,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Marcell Ozuna",
+      "teamName": "Team C",
+      "positionSlot": "UTIL-0",
+      "price": 2,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Garrett Mitchell",
+      "teamName": "Team D",
+      "positionSlot": "OF-3",
+      "price": 3,
+      "contract": "S2"
+    },
+    {
+      "playerName": "TJ Rumfield",
+      "teamName": "Team I",
+      "positionSlot": "CI-0",
+      "price": 1,
+      "contract": "S2"
+    },
+    {
+      "playerName": "David Peterson",
+      "teamName": "Team H",
+      "positionSlot": "P-5",
+      "price": 2,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Mark Vientos",
+      "teamName": "Team B",
+      "positionSlot": "MI-0",
+      "price": 2,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Keibert Ruiz",
+      "teamName": "Team H",
+      "positionSlot": "C-1",
+      "price": 1,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Joey Bart",
+      "teamName": "Team G",
+      "positionSlot": "C-0",
+      "price": 1,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Joey Ortiz",
+      "teamName": "Team B",
+      "positionSlot": "UTIL-0",
+      "price": 3,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Brady House",
+      "teamName": "Team C",
+      "positionSlot": "CI-0",
+      "price": 1,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Harrison Bader",
+      "teamName": "Team H",
+      "positionSlot": "UTIL-0",
+      "price": 2,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Max Meyer",
+      "teamName": "Team I",
+      "positionSlot": "P-0",
+      "price": 3,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Matthew Liberatore",
+      "teamName": "Team E",
+      "positionSlot": "P-7",
+      "price": 1,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Chad Patrick",
+      "teamName": "Team H",
+      "positionSlot": "P-6",
+      "price": 1,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Henry Davis",
+      "teamName": "Team G",
+      "positionSlot": "C-1",
+      "price": 1,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Braxton Ashcraft",
+      "teamName": "Team I",
+      "positionSlot": "P-6",
+      "price": 4,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Lars Nootbaar",
+      "teamName": "Team D",
+      "positionSlot": "OF-4",
+      "price": 1,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Jake McCarthy",
+      "teamName": "Team I",
+      "positionSlot": "UTIL-0",
+      "price": 3,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Jorge Mateo",
+      "teamName": "Team E",
+      "positionSlot": "OF-4",
+      "price": 1,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Alex Vesia",
+      "teamName": "Team H",
+      "positionSlot": "P-7",
+      "price": 1,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Nick Castellanos",
+      "teamName": "Team G",
+      "positionSlot": "MI-0",
+      "price": 1,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Corbin Burnes",
+      "teamName": "Team C",
+      "positionSlot": "P-7",
+      "price": 1,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Luke Weaver",
+      "teamName": "Team H",
+      "positionSlot": "P-8",
+      "price": 3,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Riley O'Brien",
+      "teamName": "Team G",
+      "positionSlot": "P-6",
+      "price": 3,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Clay Holmes",
+      "teamName": "Team G",
+      "positionSlot": "P-7",
+      "price": 1,
+      "contract": "S2"
+    },
+    {
+      "playerName": "Spencer Schwellenbach",
+      "teamName": "Team C",
+      "positionSlot": "P-8",
+      "price": 1,
+      "contract": "S2"
+    }
+  ],
+  "draft_picks": [
+    {
+      "pickNumber": 1,
+      "nominatingTeamName": "Team E",
+      "playerName": "William Contreras",
+      "winningTeamName": "Team D",
+      "salary": 25
+    },
+    {
+      "pickNumber": 2,
+      "nominatingTeamName": "Team A",
+      "playerName": "Daylen Lile",
+      "winningTeamName": "Team E",
+      "salary": 12
+    },
+    {
+      "pickNumber": 3,
+      "nominatingTeamName": "Team F",
+      "playerName": "Fernando Tatis Jr.",
+      "winningTeamName": "Team H",
+      "salary": 43
+    },
+    {
+      "pickNumber": 4,
+      "nominatingTeamName": "Team H",
+      "playerName": "Mookie Betts",
+      "winningTeamName": "Team D",
+      "salary": 28
+    },
+    {
+      "pickNumber": 5,
+      "nominatingTeamName": "Team G",
+      "playerName": "Ketel Marte",
+      "winningTeamName": "Team F",
+      "salary": 38
+    },
+    {
+      "pickNumber": 6,
+      "nominatingTeamName": "Team B",
+      "playerName": "Marcus Semien",
+      "winningTeamName": "Team F",
+      "salary": 18
+    },
+    {
+      "pickNumber": 7,
+      "nominatingTeamName": "Team C",
+      "playerName": "Bryce Harper",
+      "winningTeamName": "Team C",
+      "salary": 36
+    },
+    {
+      "pickNumber": 8,
+      "nominatingTeamName": "Team D",
+      "playerName": "Bo Bichette",
+      "winningTeamName": "Team H",
+      "salary": 33
+    },
+    {
+      "pickNumber": 9,
+      "nominatingTeamName": "Team I",
+      "playerName": "Ozzie Albies",
+      "winningTeamName": "Team G",
+      "salary": 25
+    },
+    {
+      "pickNumber": 10,
+      "nominatingTeamName": "Team E",
+      "playerName": "Eugenio Suarez",
+      "winningTeamName": "Team F",
+      "salary": 25
+    },
+    {
+      "pickNumber": 11,
+      "nominatingTeamName": "Team A",
+      "playerName": "Austin Riley",
+      "winningTeamName": "Team G",
+      "salary": 31
+    },
+    {
+      "pickNumber": 12,
+      "nominatingTeamName": "Team F",
+      "playerName": "Miguel Rojas",
+      "winningTeamName": "Team F",
+      "salary": 1
+    },
+    {
+      "pickNumber": 13,
+      "nominatingTeamName": "Team H",
+      "playerName": "Alex Bregman",
+      "winningTeamName": "Team B",
+      "salary": 26
+    },
+    {
+      "pickNumber": 14,
+      "nominatingTeamName": "Team G",
+      "playerName": "Blake Snell",
+      "winningTeamName": "Team C",
+      "salary": 11
+    },
+    {
+      "pickNumber": 15,
+      "nominatingTeamName": "Team B",
+      "playerName": "Zac Gallen",
+      "winningTeamName": "Team G",
+      "salary": 15
+    },
+    {
+      "pickNumber": 16,
+      "nominatingTeamName": "Team C",
+      "playerName": "Mason Miller",
+      "winningTeamName": "Team B",
+      "salary": 32
+    },
+    {
+      "pickNumber": 17,
+      "nominatingTeamName": "Team D",
+      "playerName": "Otto Lopez",
+      "winningTeamName": "Team A",
+      "salary": 13
+    },
+    {
+      "pickNumber": 18,
+      "nominatingTeamName": "Team I",
+      "playerName": "Ezequiel Tovar",
+      "winningTeamName": "Team I",
+      "salary": 11
+    },
+    {
+      "pickNumber": 19,
+      "nominatingTeamName": "Team E",
+      "playerName": "Matt Chapman",
+      "winningTeamName": "Team A",
+      "salary": 20
+    },
+    {
+      "pickNumber": 20,
+      "nominatingTeamName": "Team A",
+      "playerName": "Alec Bohm",
+      "winningTeamName": "Team I",
+      "salary": 11
+    },
+    {
+      "pickNumber": 21,
+      "nominatingTeamName": "Team F",
+      "playerName": "Matt Olson",
+      "winningTeamName": "Team A",
+      "salary": 35
+    },
+    {
+      "pickNumber": 22,
+      "nominatingTeamName": "Team H",
+      "playerName": "Kyle Stowers",
+      "winningTeamName": "Team C",
+      "salary": 17
+    },
+    {
+      "pickNumber": 23,
+      "nominatingTeamName": "Team G",
+      "playerName": "Tyler Glasnow",
+      "winningTeamName": "Team C",
+      "salary": 18
+    },
+    {
+      "pickNumber": 24,
+      "nominatingTeamName": "Team B",
+      "playerName": "Will Smith",
+      "winningTeamName": "Team D",
+      "salary": 18
+    },
+    {
+      "pickNumber": 25,
+      "nominatingTeamName": "Team C",
+      "playerName": "Edwin Diaz",
+      "winningTeamName": "Team C",
+      "salary": 31
+    },
+    {
+      "pickNumber": 26,
+      "nominatingTeamName": "Team D",
+      "playerName": "Luis Garcia",
+      "winningTeamName": "Team B",
+      "salary": 11
+    },
+    {
+      "pickNumber": 27,
+      "nominatingTeamName": "Team I",
+      "playerName": "Eury Perez",
+      "winningTeamName": "Team C",
+      "salary": 25
+    },
+    {
+      "pickNumber": 28,
+      "nominatingTeamName": "Team E",
+      "playerName": "Luis Robert Jr.",
+      "winningTeamName": "Team I",
+      "salary": 27
+    },
+    {
+      "pickNumber": 29,
+      "nominatingTeamName": "Team A",
+      "playerName": "Brandon Lowe",
+      "winningTeamName": "Team A",
+      "salary": 18
+    },
+    {
+      "pickNumber": 30,
+      "nominatingTeamName": "Team F",
+      "playerName": "Devin Williams",
+      "winningTeamName": "Team A",
+      "salary": 18
+    },
+    {
+      "pickNumber": 31,
+      "nominatingTeamName": "Team H",
+      "playerName": "Ian Happ",
+      "winningTeamName": "Team A",
+      "salary": 17
+    },
+    {
+      "pickNumber": 32,
+      "nominatingTeamName": "Team G",
+      "playerName": "Aaron Nola",
+      "winningTeamName": "Team D",
+      "salary": 9
+    },
+    {
+      "pickNumber": 33,
+      "nominatingTeamName": "Team B",
+      "playerName": "TJ Friedl",
+      "winningTeamName": "Team D",
+      "salary": 8
+    },
+    {
+      "pickNumber": 34,
+      "nominatingTeamName": "Team C",
+      "playerName": "Jhoan Duran",
+      "winningTeamName": "Team B",
+      "salary": 30
+    },
+    {
+      "pickNumber": 35,
+      "nominatingTeamName": "Team D",
+      "playerName": "Xander Bogaerts",
+      "winningTeamName": "Team E",
+      "salary": 7
+    },
+    {
+      "pickNumber": 36,
+      "nominatingTeamName": "Team I",
+      "playerName": "Rafael Devers",
+      "winningTeamName": "Team G",
+      "salary": 33
+    },
+    {
+      "pickNumber": 37,
+      "nominatingTeamName": "Team E",
+      "playerName": "Merrill Kelly",
+      "winningTeamName": "Team D",
+      "salary": 12
+    },
+    {
+      "pickNumber": 38,
+      "nominatingTeamName": "Team A",
+      "playerName": "Jorge Polanco",
+      "winningTeamName": "Team G",
+      "salary": 20
+    },
+    {
+      "pickNumber": 39,
+      "nominatingTeamName": "Team F",
+      "playerName": "Mickey Moniak",
+      "winningTeamName": "Team F",
+      "salary": 16
+    },
+    {
+      "pickNumber": 40,
+      "nominatingTeamName": "Team H",
+      "playerName": "Zack Wheeler",
+      "winningTeamName": "Team D",
+      "salary": 21
+    },
+    {
+      "pickNumber": 41,
+      "nominatingTeamName": "Team G",
+      "playerName": "Emmet Sheehan",
+      "winningTeamName": "Team H",
+      "salary": 20
+    },
+    {
+      "pickNumber": 42,
+      "nominatingTeamName": "Team B",
+      "playerName": "Teoscar Hernandez",
+      "winningTeamName": "Team A",
+      "salary": 18
+    },
+    {
+      "pickNumber": 43,
+      "nominatingTeamName": "Team C",
+      "playerName": "Daniel Palencia",
+      "winningTeamName": "Team B",
+      "salary": 18
+    },
+    {
+      "pickNumber": 44,
+      "nominatingTeamName": "Team D",
+      "playerName": "Spencer Steer",
+      "winningTeamName": "Team F",
+      "salary": 16
+    },
+    {
+      "pickNumber": 45,
+      "nominatingTeamName": "Team I",
+      "playerName": "Brenton Doyle",
+      "winningTeamName": "Team I",
+      "salary": 14
+    },
+    {
+      "pickNumber": 46,
+      "nominatingTeamName": "Team E",
+      "playerName": "Bryson Stott",
+      "winningTeamName": "Team C",
+      "salary": 17
+    },
+    {
+      "pickNumber": 47,
+      "nominatingTeamName": "Team A",
+      "playerName": "Joe Musgrove",
+      "winningTeamName": "Team A",
+      "salary": 5
+    },
+    {
+      "pickNumber": 48,
+      "nominatingTeamName": "Team F",
+      "playerName": "Carlos Santana",
+      "winningTeamName": "Team A",
+      "salary": 5
+    },
+    {
+      "pickNumber": 49,
+      "nominatingTeamName": "Team H",
+      "playerName": "J.T. Realmuto",
+      "winningTeamName": "Team F",
+      "salary": 7
+    },
+    {
+      "pickNumber": 50,
+      "nominatingTeamName": "Team G",
+      "playerName": "Trevor Megill",
+      "winningTeamName": "Team G",
+      "salary": 17
+    },
+    {
+      "pickNumber": 51,
+      "nominatingTeamName": "Team B",
+      "playerName": "Miguel Amaya",
+      "winningTeamName": "Team E",
+      "salary": 2
+    },
+    {
+      "pickNumber": 52,
+      "nominatingTeamName": "Team C",
+      "playerName": "Oneil Cruz",
+      "winningTeamName": "Team G",
+      "salary": 29
+    },
+    {
+      "pickNumber": 53,
+      "nominatingTeamName": "Team D",
+      "playerName": "Christian Yelich",
+      "winningTeamName": "Team H",
+      "salary": 21
+    },
+    {
+      "pickNumber": 54,
+      "nominatingTeamName": "Team I",
+      "playerName": "Luis Arraez",
+      "winningTeamName": "Team D",
+      "salary": 14
+    },
+    {
+      "pickNumber": 55,
+      "nominatingTeamName": "Team E",
+      "playerName": "Jakob Marsee",
+      "winningTeamName": "Team I",
+      "salary": 20
+    },
+    {
+      "pickNumber": 56,
+      "nominatingTeamName": "Team A",
+      "playerName": "Noelvi Marte",
+      "winningTeamName": "Team A",
+      "salary": 22
+    },
+    {
+      "pickNumber": 57,
+      "nominatingTeamName": "Team F",
+      "playerName": "Liam Hicks",
+      "winningTeamName": "Team E",
+      "salary": 2
+    },
+    {
+      "pickNumber": 58,
+      "nominatingTeamName": "Team H",
+      "playerName": "Hunter Greene",
+      "winningTeamName": "Team H",
+      "salary": 4
+    },
+    {
+      "pickNumber": 59,
+      "nominatingTeamName": "Team G",
+      "playerName": "Emilio Pagan",
+      "winningTeamName": "Team E",
+      "salary": 18
+    },
+    {
+      "pickNumber": 60,
+      "nominatingTeamName": "Team B",
+      "playerName": "Ryan O'Hearn",
+      "winningTeamName": "Team F",
+      "salary": 9
+    },
+    {
+      "pickNumber": 61,
+      "nominatingTeamName": "Team C",
+      "playerName": "Andy Pages",
+      "winningTeamName": "Team G",
+      "salary": 17
+    },
+    {
+      "pickNumber": 62,
+      "nominatingTeamName": "Team D",
+      "playerName": "Bryan Reynolds",
+      "winningTeamName": "Team H",
+      "salary": 16
+    },
+    {
+      "pickNumber": 63,
+      "nominatingTeamName": "Team I",
+      "playerName": "Freddy Fermin",
+      "winningTeamName": "Team I",
+      "salary": 4
+    },
+    {
+      "pickNumber": 64,
+      "nominatingTeamName": "Team E",
+      "playerName": "Matt McLain",
+      "winningTeamName": "Team D",
+      "salary": 10
+    },
+    {
+      "pickNumber": 65,
+      "nominatingTeamName": "Team A",
+      "playerName": "Ryan Walker",
+      "winningTeamName": "Team E",
+      "salary": 9
+    },
+    {
+      "pickNumber": 66,
+      "nominatingTeamName": "Team F",
+      "playerName": "Tyler Stephenson",
+      "winningTeamName": "Team F",
+      "salary": 7
+    },
+    {
+      "pickNumber": 67,
+      "nominatingTeamName": "Team H",
+      "playerName": "Tanner Scott",
+      "winningTeamName": "Team A",
+      "salary": 2
+    },
+    {
+      "pickNumber": 68,
+      "nominatingTeamName": "Team G",
+      "playerName": "Edward Cabrera",
+      "winningTeamName": "Team B",
+      "salary": 11
+    },
+    {
+      "pickNumber": 69,
+      "nominatingTeamName": "Team B",
+      "playerName": "Patrick Bailey",
+      "winningTeamName": "Team B",
+      "salary": 3
+    },
+    {
+      "pickNumber": 70,
+      "nominatingTeamName": "Team C",
+      "playerName": "Heliot Ramos",
+      "winningTeamName": "Team H",
+      "salary": 10
+    },
+    {
+      "pickNumber": 71,
+      "nominatingTeamName": "Team D",
+      "playerName": "Adolis Garcia",
+      "winningTeamName": "Team E",
+      "salary": 11
+    },
+    {
+      "pickNumber": 72,
+      "nominatingTeamName": "Team I",
+      "playerName": "Andrew Vaughn",
+      "winningTeamName": "Team E",
+      "salary": 17
+    },
+    {
+      "pickNumber": 73,
+      "nominatingTeamName": "Team E",
+      "playerName": "Tommy Edman",
+      "winningTeamName": "Team E",
+      "salary": 1
+    },
+    {
+      "pickNumber": 74,
+      "nominatingTeamName": "Team A",
+      "playerName": "Matt Svanson",
+      "winningTeamName": "Team F",
+      "salary": 8
+    },
+    {
+      "pickNumber": 75,
+      "nominatingTeamName": "Team F",
+      "playerName": "Pete Fairbanks",
+      "winningTeamName": "Team F",
+      "salary": 10
+    },
+    {
+      "pickNumber": 76,
+      "nominatingTeamName": "Team H",
+      "playerName": "Brett Baty",
+      "winningTeamName": "Team H",
+      "salary": 5
+    },
+    {
+      "pickNumber": 77,
+      "nominatingTeamName": "Team G",
+      "playerName": "Dennis Santana",
+      "winningTeamName": "Team F",
+      "salary": 8
+    },
+    {
+      "pickNumber": 78,
+      "nominatingTeamName": "Team B",
+      "playerName": "Tyler Freeman",
+      "winningTeamName": "Team B",
+      "salary": 5
+    },
+    {
+      "pickNumber": 79,
+      "nominatingTeamName": "Team C",
+      "playerName": "Ramon Laureano",
+      "winningTeamName": "Team F",
+      "salary": 12
+    },
+    {
+      "pickNumber": 80,
+      "nominatingTeamName": "Team D",
+      "playerName": "Jordan Beck",
+      "winningTeamName": "Team C",
+      "salary": 8
+    },
+    {
+      "pickNumber": 81,
+      "nominatingTeamName": "Team I",
+      "playerName": "Willi Castro",
+      "winningTeamName": "Team C",
+      "salary": 2
+    },
+    {
+      "pickNumber": 82,
+      "nominatingTeamName": "Team E",
+      "playerName": "Connor Norby",
+      "winningTeamName": "Team E",
+      "salary": 3
+    },
+    {
+      "pickNumber": 83,
+      "nominatingTeamName": "Team A",
+      "playerName": "Joey Wentz",
+      "winningTeamName": "Team H",
+      "salary": 2
+    },
+    {
+      "pickNumber": 84,
+      "nominatingTeamName": "Team F",
+      "playerName": "Kevin Ginkel",
+      "winningTeamName": "Team F",
+      "salary": 3
+    },
+    {
+      "pickNumber": 85,
+      "nominatingTeamName": "Team H",
+      "playerName": "Kodai Senga",
+      "winningTeamName": "Team C",
+      "salary": 4
+    },
+    {
+      "pickNumber": 86,
+      "nominatingTeamName": "Team G",
+      "playerName": "Tyler Mahle",
+      "winningTeamName": "Team I",
+      "salary": 2
+    },
+    {
+      "pickNumber": 87,
+      "nominatingTeamName": "Team B",
+      "playerName": "Abner Uribe",
+      "winningTeamName": "Team D",
+      "salary": 5
+    },
+    {
+      "pickNumber": 88,
+      "nominatingTeamName": "Team C",
+      "playerName": "Robert Suarez",
+      "winningTeamName": "Team E",
+      "salary": 4
+    },
+    {
+      "pickNumber": 89,
+      "nominatingTeamName": "Team D",
+      "playerName": "Ryne Nelson",
+      "winningTeamName": "Team D",
+      "salary": 3
+    },
+    {
+      "pickNumber": 90,
+      "nominatingTeamName": "Team I",
+      "playerName": "Nolan Gorman",
+      "winningTeamName": "Team H",
+      "salary": 2
+    },
+    {
+      "pickNumber": 91,
+      "nominatingTeamName": "Team E",
+      "playerName": "Kyle Karros",
+      "winningTeamName": "Team E",
+      "salary": 1
+    },
+    {
+      "pickNumber": 92,
+      "nominatingTeamName": "Team A",
+      "playerName": "Ben Brown",
+      "winningTeamName": "Team A",
+      "salary": 1
+    },
+    {
+      "pickNumber": 93,
+      "nominatingTeamName": "Team H",
+      "playerName": "Tobias Myers",
+      "winningTeamName": "Team A",
+      "salary": 2
+    },
+    {
+      "pickNumber": 94,
+      "nominatingTeamName": "Team G",
+      "playerName": "Quinn Priester",
+      "winningTeamName": "Team B",
+      "salary": 4
+    },
+    {
+      "pickNumber": 95,
+      "nominatingTeamName": "Team B",
+      "playerName": "Lourdes Gurriel Jr.",
+      "winningTeamName": "Team B",
+      "salary": 1
+    },
+    {
+      "pickNumber": 96,
+      "nominatingTeamName": "Team C",
+      "playerName": "Matt Shaw",
+      "winningTeamName": "Team D",
+      "salary": 2
+    },
+    {
+      "pickNumber": 97,
+      "nominatingTeamName": "Team D",
+      "playerName": "Gavin Sheets",
+      "winningTeamName": "Team A",
+      "salary": 4
+    },
+    {
+      "pickNumber": 98,
+      "nominatingTeamName": "Team I",
+      "playerName": "Jake Cronenworth",
+      "winningTeamName": "Team I",
+      "salary": 2
+    },
+    {
+      "pickNumber": 99,
+      "nominatingTeamName": "Team E",
+      "playerName": "Eduardo Rodriguez",
+      "winningTeamName": "Team G",
+      "salary": 2
+    },
+    {
+      "pickNumber": 100,
+      "nominatingTeamName": "Team A",
+      "playerName": "Luis Torrens",
+      "winningTeamName": "Team A",
+      "salary": 1
+    },
+    {
+      "pickNumber": 101,
+      "nominatingTeamName": "Team H",
+      "playerName": "Sean Manaea",
+      "winningTeamName": "Team D",
+      "salary": 2
+    },
+    {
+      "pickNumber": 102,
+      "nominatingTeamName": "Team G",
+      "playerName": "Dustin May",
+      "winningTeamName": "Team G",
+      "salary": 1
+    },
+    {
+      "pickNumber": 103,
+      "nominatingTeamName": "Team B",
+      "playerName": "Jake Mangum",
+      "winningTeamName": "Team B",
+      "salary": 3
+    },
+    {
+      "pickNumber": 104,
+      "nominatingTeamName": "Team C",
+      "playerName": "Marcell Ozuna",
+      "winningTeamName": "Team C",
+      "salary": 2
+    },
+    {
+      "pickNumber": 105,
+      "nominatingTeamName": "Team D",
+      "playerName": "Garrett Mitchell",
+      "winningTeamName": "Team D",
+      "salary": 3
+    },
+    {
+      "pickNumber": 106,
+      "nominatingTeamName": "Team I",
+      "playerName": "TJ Rumfield",
+      "winningTeamName": "Team I",
+      "salary": 1
+    },
+    {
+      "pickNumber": 107,
+      "nominatingTeamName": "Team E",
+      "playerName": "David Peterson",
+      "winningTeamName": "Team H",
+      "salary": 2
+    },
+    {
+      "pickNumber": 108,
+      "nominatingTeamName": "Team A",
+      "playerName": "Mark Vientos",
+      "winningTeamName": "Team B",
+      "salary": 2
+    },
+    {
+      "pickNumber": 109,
+      "nominatingTeamName": "Team H",
+      "playerName": "Keibert Ruiz",
+      "winningTeamName": "Team H",
+      "salary": 1
+    },
+    {
+      "pickNumber": 110,
+      "nominatingTeamName": "Team G",
+      "playerName": "Joey Bart",
+      "winningTeamName": "Team G",
+      "salary": 1
+    },
+    {
+      "pickNumber": 111,
+      "nominatingTeamName": "Team B",
+      "playerName": "Joey Ortiz",
+      "winningTeamName": "Team B",
+      "salary": 3
+    },
+    {
+      "pickNumber": 112,
+      "nominatingTeamName": "Team C",
+      "playerName": "Brady House",
+      "winningTeamName": "Team C",
+      "salary": 1
+    },
+    {
+      "pickNumber": 113,
+      "nominatingTeamName": "Team D",
+      "playerName": "Harrison Bader",
+      "winningTeamName": "Team H",
+      "salary": 2
+    },
+    {
+      "pickNumber": 114,
+      "nominatingTeamName": "Team I",
+      "playerName": "Max Meyer",
+      "winningTeamName": "Team I",
+      "salary": 3
+    },
+    {
+      "pickNumber": 115,
+      "nominatingTeamName": "Team E",
+      "playerName": "Matthew Liberatore",
+      "winningTeamName": "Team E",
+      "salary": 1
+    },
+    {
+      "pickNumber": 117,
+      "nominatingTeamName": "Team H",
+      "playerName": "Chad Patrick",
+      "winningTeamName": "Team H",
+      "salary": 1
+    },
+    {
+      "pickNumber": 118,
+      "nominatingTeamName": "Team G",
+      "playerName": "Henry Davis",
+      "winningTeamName": "Team G",
+      "salary": 1
+    },
+    {
+      "pickNumber": 119,
+      "nominatingTeamName": "Team C",
+      "playerName": "Braxton Ashcraft",
+      "winningTeamName": "Team I",
+      "salary": 4
+    },
+    {
+      "pickNumber": 120,
+      "nominatingTeamName": "Team D",
+      "playerName": "Lars Nootbaar",
+      "winningTeamName": "Team D",
+      "salary": 1
+    },
+    {
+      "pickNumber": 121,
+      "nominatingTeamName": "Team I",
+      "playerName": "Jake McCarthy",
+      "winningTeamName": "Team I",
+      "salary": 3
+    },
+    {
+      "pickNumber": 122,
+      "nominatingTeamName": "Team E",
+      "playerName": "Jorge Mateo",
+      "winningTeamName": "Team E",
+      "salary": 1
+    },
+    {
+      "pickNumber": 123,
+      "nominatingTeamName": "Team H",
+      "playerName": "Alex Vesia",
+      "winningTeamName": "Team H",
+      "salary": 1
+    },
+    {
+      "pickNumber": 124,
+      "nominatingTeamName": "Team G",
+      "playerName": "Nick Castellanos",
+      "winningTeamName": "Team G",
+      "salary": 1
+    },
+    {
+      "pickNumber": 125,
+      "nominatingTeamName": "Team C",
+      "playerName": "Corbin Burnes",
+      "winningTeamName": "Team C",
+      "salary": 1
+    },
+    {
+      "pickNumber": 126,
+      "nominatingTeamName": "Team D",
+      "playerName": "Luke Weaver",
+      "winningTeamName": "Team H",
+      "salary": 3
+    },
+    {
+      "pickNumber": 128,
+      "nominatingTeamName": "Team E",
+      "playerName": "Riley O'Brien",
+      "winningTeamName": "Team G",
+      "salary": 3
+    },
+    {
+      "pickNumber": 129,
+      "nominatingTeamName": "Team G",
+      "playerName": "Clay Holmes",
+      "winningTeamName": "Team G",
+      "salary": 1
+    },
+    {
+      "pickNumber": 130,
+      "nominatingTeamName": "Team C",
+      "playerName": "Spencer Schwellenbach",
+      "winningTeamName": "Team C",
+      "salary": 1
+    }
+  ]
+}

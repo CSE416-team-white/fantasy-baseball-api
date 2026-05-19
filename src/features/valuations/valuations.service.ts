@@ -84,7 +84,12 @@ export class ValuationsService {
       (league.taken_players ?? []).map(([pid]) => String(pid)),
     );
 
-    const scarcityMap = this.buildScarcityMap(allPlayers, league, numTeams);
+    const scarcityMap = this.buildScarcityMap(
+      allPlayers,
+      league,
+      numTeams,
+      takenPlayerIds,
+    );
 
     const hitterValuations = this.scoreToValuations(
       hitterScored,
@@ -290,12 +295,15 @@ export class ValuationsService {
     players: Player[],
     league: League,
     numTeams: number,
+    takenPlayerIds: Set<string>,
   ): Map<string, number> {
     const slots = league.rosterSlots as Record<string, number>;
 
-    // Pool size: active players at each position
+    // Pool size: undrafted active players at each position
     const poolSize: Record<string, number> = {};
     for (const player of players) {
+      if (takenPlayerIds.has(String(player._id))) continue;
+
       for (const pos of player.positions) {
         poolSize[pos] = (poolSize[pos] ?? 0) + 1;
       }

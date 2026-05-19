@@ -484,6 +484,110 @@ describe('ValuationsService.calculateValuations', () => {
     );
   });
 
+  it('removes drafted players from scarcity supply', async () => {
+    const [leagueWithoutDrafts] = await LeagueModel.insertMany([
+      {
+        ...baseLeague,
+        externalId: 'scarcity-undrafted',
+        rosterSlots: {
+          C: 1,
+          '1B': 0,
+          '2B': 0,
+          '3B': 0,
+          SS: 0,
+          OF: 2,
+          DH: 0,
+          SP: 0,
+          RP: 0,
+          UTIL: 0,
+          BENCH: 0,
+        },
+      },
+    ]);
+
+    const insertedPlayers = await PlayerModel.insertMany([
+      hitter({
+        externalId: 'scarcity-c-1',
+        name: 'Catcher A',
+        positions: ['C'],
+      }),
+      hitter({
+        externalId: 'scarcity-c-2',
+        name: 'Catcher B',
+        positions: ['C'],
+      }),
+      hitter({
+        externalId: 'scarcity-of-1',
+        name: 'Outfielder A',
+        positions: ['OF'],
+      }),
+      hitter({
+        externalId: 'scarcity-of-2',
+        name: 'Outfielder B',
+        positions: ['OF'],
+      }),
+      hitter({
+        externalId: 'scarcity-of-3',
+        name: 'Outfielder C',
+        positions: ['OF'],
+      }),
+      hitter({
+        externalId: 'scarcity-of-4',
+        name: 'Outfielder D',
+        positions: ['OF'],
+      }),
+    ]);
+
+    const draftedCatcherId = insertedPlayers
+      .find((player) => player.name === 'Catcher A')!
+      ._id.toString();
+
+    const baseline = await valuationsService.calculateValuations(
+      leagueWithoutDrafts._id.toString(),
+      { page: 1, limit: 50 },
+    );
+
+    const [leagueWithDraftedCatcher] = await LeagueModel.insertMany([
+      {
+        ...baseLeague,
+        externalId: 'scarcity-drafted',
+        rosterSlots: {
+          C: 1,
+          '1B': 0,
+          '2B': 0,
+          '3B': 0,
+          SS: 0,
+          OF: 2,
+          DH: 0,
+          SP: 0,
+          RP: 0,
+          UTIL: 0,
+          BENCH: 0,
+        },
+        taken_players: [[draftedCatcherId, 'team-1', 'C-0', 1]],
+      },
+    ]);
+
+    const withDraftedCatcher = await valuationsService.calculateValuations(
+      leagueWithDraftedCatcher._id.toString(),
+      { page: 1, limit: 50 },
+    );
+
+    const baselineCatcher = baseline.valuations.find(
+      (v) => v.name === 'Catcher B',
+    )!;
+    const draftedPoolCatcher = withDraftedCatcher.valuations.find(
+      (v) => v.name === 'Catcher B',
+    )!;
+
+    expect(draftedPoolCatcher.multipliers.scarcity).toBeGreaterThan(
+      baselineCatcher.multipliers.scarcity,
+    );
+    expect(draftedPoolCatcher.dollarValue).toBeGreaterThan(
+      baselineCatcher.dollarValue,
+    );
+  });
+
   // ── Draftability ───────────────────────────────────────────────────────────
 
   it('marks taken players as not draftable', async () => {
